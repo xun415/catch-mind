@@ -1,11 +1,14 @@
 import { ChakraProvider } from "@chakra-ui/react"
 import Routes from '@routes/index'
+import {SocketContextProvider} from "./contexts/socket";
 
-function App({ children }) {
+function App() {
 
   return (
       <ChakraProvider>
-          <Routes />
+          <SocketContextProvider>
+            <Routes />
+          </SocketContextProvider>
       </ChakraProvider>
   )
 }

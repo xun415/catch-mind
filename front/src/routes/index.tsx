@@ -1,24 +1,38 @@
 import { type RouteObject, useRoutes } from 'react-router-dom'
-import IndexPage from "../pages";
-import GameSettingPage from "../pages/GameSetting";
-import GamePage from "../pages/Game";
+import IndexPage from "@pages";
+import GameSettingPage from "@pages/gameSetting";
+import GamePage from "@pages/game";
+import Layout from "@components/templates/Layout";
+import GameLayout from "@components/templates/GameLayout";
 
 const routes = () => {
 
     return (
         useRoutes([
             {
-                path: '/',
-                element: <IndexPage />
+
+                element: <Layout />,
+                children: [
+                    {
+                        path: '/',
+                        element: <IndexPage />
+                    }
+                ]
             },
             {
-                path: 'gameSetting',
-                element: <GameSettingPage />
+                element: <GameLayout />,
+                children: [
+                    {
+                        path: 'gameSetting',
+                        element: <GameSettingPage />
+                    },
+                    {
+                        path: 'game',
+                        element: <GamePage />
+                    }
+                ]
             },
-            {
-                path: 'game',
-                element: <GamePage />
-            }
+
         ] as RouteObject[])
     )
 }

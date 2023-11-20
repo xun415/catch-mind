@@ -1,15 +1,16 @@
 import Header from "@components/organisms/Header";
 import { Outlet } from 'react-router-dom'
 
-const Layout = () => {
+const GameLayout = () => {
     return (
         <>
             <Header/>
             <main>
+                gameLayout
                 <Outlet />
             </main>
         </>
     )
 }
 
-export default Layout
+export default GameLayout
