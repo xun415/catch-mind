@@ -1,7 +1,7 @@
 import { type RouteObject, useRoutes } from 'react-router-dom'
-import IndexPage from "@pages";
+import IndexPage from "@pages/index";
 import GameSettingPage from "@pages/gameSetting";
-import GamePage from "@pages/game";
+import GameRoomPage from "@pages/gameRoom";
 import Layout from "@components/templates/Layout";
 import GameLayout from "@components/templates/GameLayout";
 
@@ -28,7 +28,7 @@ const routes = () => {
                     },
                     {
                         path: 'game',
-                        element: <GamePage />
+                        element: <GameRoomPage />
                     }
                 ]
             },

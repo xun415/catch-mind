@@ -1,6 +1,10 @@
+import IndexFormContainer from "../containers/IndexFormContainer";
+
 const IndexPage = () => {
     return (
-        <div>index page</div>
+        <div>
+            <IndexFormContainer />
+        </div>
     )
 }
 

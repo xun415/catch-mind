@@ -1,10 +1,14 @@
-import {Container, Flex} from "@chakra-ui/react";
+import { Center, Container, Text} from "@chakra-ui/react";
 
 const Header = () => {
     return (
-        <Flex as={'header'}>
-            logo
-        </Flex>
+        <header>
+            <Center h={'80px'} borderBottom={'1px solid gray'}>
+                <Container p={'20px'} maxW={'1480px'}>
+                    <Text as={'h1'} fontWeight={800}  >CATCH MIND</Text>
+                </Container>
+            </Center>
+        </header>
     )
 }
 
