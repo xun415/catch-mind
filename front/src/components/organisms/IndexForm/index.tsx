@@ -3,16 +3,16 @@ import { useForm } from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message"
 
 type Props = {
-    joinRoomHandler: (nickname: string) => void
-    createRoomHandler: (nickname: string) => void
+    onSubmitJoinRoom: (nickname: string) => void
+    onSubmitCreateRoom: (nickname: string) => void
 }
 
 type FormValues = {
     nickname: string
 }
 
-const IndexForm = ({ joinRoomHandler, createRoomHandler }: Props) => {
-    const { register, formState: { errors }, handleSubmit, trigger } = useForm<FormValues>()
+const IndexForm = ({ onSubmitJoinRoom, onSubmitCreateRoom }: Props) => {
+    const { register, formState: { errors }, handleSubmit } = useForm<FormValues>()
 
     // 닉네임 유효성 검증 완료 후
     const onSubmit = (data, event) => {
@@ -25,7 +25,7 @@ const IndexForm = ({ joinRoomHandler, createRoomHandler }: Props) => {
         const submitBtnType = event.nativeEvent.submitter.dataset.type
         const isJoinBtnClicked = submitBtnType === 'join'
 
-        isJoinBtnClicked? joinRoomHandler(nickname) : createRoomHandler(nickname)
+        isJoinBtnClicked? onSubmitJoinRoom(nickname) : onSubmitCreateRoom(nickname)
     }
 
     return (
