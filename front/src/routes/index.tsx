@@ -23,11 +23,11 @@ const routes = () => {
                 element: <GameLayout />,
                 children: [
                     {
-                        path: 'gameSetting',
+                        path: '/gameSetting',
                         element: <GameSettingPage />
                     },
                     {
-                        path: 'game',
+                        path: '/gameRoom',
                         element: <GameRoomPage />
                     }
                 ]

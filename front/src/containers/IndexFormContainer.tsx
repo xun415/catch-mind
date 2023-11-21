@@ -1,17 +1,24 @@
 import IndexForm from "@components/organisms/IndexForm";
-import {useSocketContext} from "@contexts/socket";
+import {useNavigate} from "react-router-dom";
+import {useUserContext} from "@contexts/user/UserContext";
 
 const IndexFormContainer = () => {
-    const { socket } = useSocketContext()
+    let navigate = useNavigate()
+    const { setNickname } = useUserContext()
 
+    // 방 참여하기 로직
     const joinRoomHandler = (nickname: string) => {
-        // 방 참여하기 로직
-        console.log('[joinRoomHandler] nickname: ', nickname)
+        setNickname(nickname)
+        console.log('[joinRoomHandler]')
+        // todo: 방 코드 입력
+        // navigate('/gameSetting')
     }
 
+    // 방 만들기 로직
     const createRoomHandler = (nickname: string) => {
-        // 방 만들기 로직
-        console.log('[createRoomHandler] nickname: ', nickname)
+        console.log('[createRoomHandler]')
+        setNickname(nickname)
+        navigate('/gameSetting?isHost=true')
     }
 
     return (
