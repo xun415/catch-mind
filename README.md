@@ -1,5 +1,5 @@
 # catch-mind
-react+ts, node 서버 기반 캐치 마인드 개인 프로젝트
+(진행중)react+ts, node 서버 기반 캐치 마인드 개인 프로젝트
 webRTC, socket.io를 사용하여 실시간 채팅, 음성, canvas 통신 기능 구현
 
 ## 프로젝트 환경 구성
