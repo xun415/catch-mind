@@ -43,7 +43,7 @@ app.get('/api/rooms/:roomId/is-full', (req, res) => {
         return res.status(404)
     }
 
-    if (room.connectedUsers.length > 3) {
+    if (room.players.length > room.maxPlayerNumber) {
         return res.send({ isFull: true })
     } else {
         return res.send({ isFull: false })
@@ -78,7 +78,10 @@ const createNewRoomHandler = (data, socket) => {
 
     const roomId = uuid();
 
-    // 새 유저 정보
+    /**
+     * 새 유저 정보
+     * @type { User } newUser
+     */
     const newUser = {
         username,
         id: uuid(),
@@ -89,10 +92,24 @@ const createNewRoomHandler = (data, socket) => {
     // 연결 유저 목록에 추가
     connectedUsers = [...connectedUsers, newUser]
 
-    // 새로운 방 생성
+    /**
+     * 새로운 방 생성
+     * @type {Room} newRoom
+     */
     const newRoom = {
         id: roomId,
-        connectedUsers: [newUser]
+        players: [
+            {
+                ...newUser,
+                roundDoneCount: 0,
+                score: 0,
+            }
+        ],
+        currentRound: 0,
+        // default
+        maxPlayerNumber: 4,
+        timePerRound: 60,
+        totalRound: 3
     }
 
     // join socket.io room
@@ -104,7 +121,7 @@ const createNewRoomHandler = (data, socket) => {
     socket.emit('room-id', { roomId })
 
     // 연결된 유저에게 방 업데이트
-    socket.emit('room-update', { connectedUsers: newRoom.connectedUsers })
+    socket.emit('room-update', { players: newRoom.players })
 }
 
 /**
@@ -115,6 +132,10 @@ const createNewRoomHandler = (data, socket) => {
 const joinRoomHandler = (data, socket) => {
     const { username, roomId } = data
 
+    /**
+     *
+     * @type { User } newUser
+     */
     const newUser = {
         username,
         id: uuid(),
@@ -125,7 +146,14 @@ const joinRoomHandler = (data, socket) => {
     // 참여하고자 하는 방 찾기
     const room = rooms.find(room => room.id === roomId)
 
-    room.connectedUsers = [...room.connectedUsers, newUser]
+    room.players = [
+        ...room.players,
+        {
+            ...newUser,
+            roundDoneCount: 0,
+            score: 0,
+        }
+    ]
 
     // join socket.io room
     socket.join(roomId)
@@ -134,7 +162,7 @@ const joinRoomHandler = (data, socket) => {
     connectedUsers = [...connectedUsers, newUser]
 
     // 참여한 유저들에게 webRTC 연결 준비 이벤트 발송
-    room.connectedUsers.forEach(user => {
+    room.players.forEach(user => {
         // 본인 제외
         if (user.socketId !== socket.id) {
             const data = {
@@ -146,7 +174,7 @@ const joinRoomHandler = (data, socket) => {
     })
 
     // 룸에 있는 유저들에게 유저 업데이트
-    io.to(roomId).emit('room-update', { connectedUsers: room.connectedUsers })
+    io.to(roomId).emit('room-update', { players: room.players })
 }
 
 const disconnectHandler = (socket) => {
@@ -163,15 +191,14 @@ const disconnectHandler = (socket) => {
         // leave socket io room
         socket.leave(user.roomId)
 
-        // close the room if amount of the users which will stay in room will be 0
-        if (room.connectedUsers.length > 0) {
+        if (room.players.length > 0) {
 
             // 연결이 끊긴 socketId 알려주기 (각 종단에서 webRTC 연결 해제)
             io.to(room.id).emit('user-disconnected', { socketId: socket.id })
 
             // 남아있는 유저들에게 방 정보 업데이트
             io.to(room.id).emit('room-update', {
-                connectedUsers: room.connectedUsers
+                players: room.players
             })
         } else {
             // 유저 없을 시 방 제거

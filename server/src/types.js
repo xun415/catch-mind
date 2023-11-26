@@ -7,7 +7,21 @@
  */
 
 /**
+ * @typedef Player
+ * @extends User
+ *
+ * @property {number} score 점수
+ * @property {number} roundDoneCount 진행한 라운드 수
+ */
+
+/**
  * @typedef Room
+ *
  * @property {string} id 룸 아이디
- * @property {User[]} connectedUsers 소속 유저 리스트
+ * @property {Player[]} players 소속 유저 리스트
+ * @property {number} currentRound 현재 라운드
+ * @property {number} totalRound 총 라운드
+ * @property {number} maxPlayerNumber 참여가능한 최대 플레이어 수
+ * @property {number} timePerRound 라운드 당 시간
+ *
  */
