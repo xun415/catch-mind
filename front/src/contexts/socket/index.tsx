@@ -34,7 +34,6 @@ export const SocketContextProvider = ({ children }: SocketContextProviderProps) 
         }
     }, [])
 
-
     return (
         <SocketContext.Provider
             value={{

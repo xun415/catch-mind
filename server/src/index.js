@@ -59,6 +59,14 @@ io.on('connection', (socket) => {
         joinRoomHandler(data, socket)
     })
 
+    socket.on('change-room-setting', (data) => {
+        changeRoomSettingHandler(data)
+    })
+
+    socket.on('complete-setting', data => {
+        console.log('complete-setting', data)
+    })
+
     socket.on('disconnect', () => {
         disconnectHandler(socket)
     })
@@ -101,7 +109,7 @@ const createNewRoomHandler = (data, socket) => {
         players: [
             {
                 ...newUser,
-                roundDoneCount: 0,
+                playedRound: 0,
                 score: 0,
             }
         ],
@@ -109,7 +117,8 @@ const createNewRoomHandler = (data, socket) => {
         // default
         maxPlayerNumber: 4,
         timePerRound: 60,
-        totalRound: 3
+        totalRound: 3,
+        currentPlayer: null
     }
 
     // join socket.io room
@@ -121,7 +130,7 @@ const createNewRoomHandler = (data, socket) => {
     socket.emit('room-id', { roomId })
 
     // 연결된 유저에게 방 업데이트
-    socket.emit('room-update', { players: newRoom.players })
+    socket.emit('player-update', { players: newRoom.players })
 }
 
 /**
@@ -150,7 +159,7 @@ const joinRoomHandler = (data, socket) => {
         ...room.players,
         {
             ...newUser,
-            roundDoneCount: 0,
+            playedRound: 0,
             score: 0,
         }
     ]
@@ -174,7 +183,25 @@ const joinRoomHandler = (data, socket) => {
     })
 
     // 룸에 있는 유저들에게 유저 업데이트
-    io.to(roomId).emit('room-update', { players: room.players })
+    io.to(roomId).emit('player-update', { players: room.players })
+}
+
+const changeRoomSettingHandler = (data) => {
+    const { roomId, totalRound, maxPlayerNumber, timePerRound } = data
+
+    // 참여하고자 하는 방 찾기
+    const roomIdx = rooms.findIndex(room => room.id === roomId)
+
+    // 방 업데이트
+    const updatedRoom = {
+        ...rooms[roomIdx],
+        totalRound, maxPlayerNumber, timePerRound
+    }
+
+    rooms[roomIdx] = updatedRoom
+
+    // 유저들에게 방 정보 업데이트 알려주기
+    io.to(roomId).emit('room-setting-update', { totalRound, maxPlayerNumber, timePerRound })
 }
 
 const disconnectHandler = (socket) => {
@@ -186,7 +213,7 @@ const disconnectHandler = (socket) => {
         const room  = rooms.find(room => room.id === user.roomId)
 
         // 방에서 유저 제거
-        room.connectedUsers = room.connectedUsers.filter(user => user.socketId !== socket.id)
+        room.players = room.players.filter(user => user.socketId !== socket.id)
 
         // leave socket io room
         socket.leave(user.roomId)
@@ -197,7 +224,7 @@ const disconnectHandler = (socket) => {
             io.to(room.id).emit('user-disconnected', { socketId: socket.id })
 
             // 남아있는 유저들에게 방 정보 업데이트
-            io.to(room.id).emit('room-update', {
+            io.to(room.id).emit('player-update', {
                 players: room.players
             })
         } else {

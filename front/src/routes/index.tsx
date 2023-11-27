@@ -1,6 +1,5 @@
 import { type RouteObject, useRoutes } from 'react-router-dom'
 import IndexPage from "@pages/index";
-import GameSettingPage from "@pages/gameSetting";
 import GameRoomPage from "@pages/gameRoom";
 import Layout from "@components/templates/Layout";
 import GameLayout from "@components/templates/GameLayout";
@@ -22,10 +21,6 @@ const routes = () => {
             {
                 element: <GameLayout />,
                 children: [
-                    {
-                        path: '/gameSetting',
-                        element: <GameSettingPage />
-                    },
                     {
                         path: '/gameRoom',
                         element: <GameRoomPage />

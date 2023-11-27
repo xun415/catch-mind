@@ -33,7 +33,8 @@
       "@store/*": ["./store/*"],
       "@routes/*": ["./routes/*"],
       "@contexts/*": ["./contexts/*"]
-    }
+    },
+    "allowSyntheticDefaultImports": true
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]
