@@ -6,14 +6,14 @@ import JoinRoomModal from "@components/organisms/JoinRoomModal";
 
 const IndexFormContainer = () => {
     let navigate = useNavigate()
-    const { setNickname } = useUserContext()
+    const { setUsername } = useUserContext()
     const [isJoinRoomModalOpen, setIsJoinRoomModalOpen] = useState(false)
     const [joinRoomErrorMessage, setJoinRoomErrorMessage] = useState('')
 
     // 방 참여하기 로직
     const onSubmitJoinRoom = (nickname: string) => {
         console.log('[onSubmitJoinRoom]')
-        setNickname(nickname)
+        setUsername(nickname)
 
         // 방 코드 입력 모달 표시
         setIsJoinRoomModalOpen(true)
@@ -41,8 +41,8 @@ const IndexFormContainer = () => {
     // 방 만들기 로직
     const onSubmitCreateRoom = (nickname: string) => {
         console.log('[onSubmitCreateRoom]')
-        setNickname(nickname)
-        navigate('/gameSetting?isHost=true')
+        setUsername(nickname)
+        navigate('/gameRoom?isHost=true')
     }
 
 

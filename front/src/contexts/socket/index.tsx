@@ -28,8 +28,10 @@ export const SocketContextProvider = ({ children }: SocketContextProviderProps) 
         const socket = io(SERVER_URL)
         setSocketId(socket.id)
         setSocketValue(socket)
+        console.log('socket connected: ', socket)
 
         return () => {
+            console.log('disconnect')
             socket.disconnect()
         }
     }, [])

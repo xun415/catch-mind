@@ -51,7 +51,9 @@ app.get('/api/rooms/:roomId/is-full', (req, res) => {
 })
 
 io.on('connection', (socket) => {
+    console.log('socket', socket.id)
     socket.on('create-new-room', (data) => {
+        console.log('create-new-room ', data)
         createNewRoomHandler(data, socket)
     })
 
@@ -127,7 +129,7 @@ const createNewRoomHandler = (data, socket) => {
     rooms = [...rooms, newRoom]
 
     // 방 생성 유저에 방 아이디 전달
-    socket.emit('room-id', { roomId })
+    socket.emit('room-created', { roomId })
 
     // 연결된 유저에게 방 업데이트
     socket.emit('player-update', { players: newRoom.players })

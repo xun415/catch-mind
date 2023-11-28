@@ -1,13 +1,13 @@
 import {createContext, Dispatch, ReactNode, SetStateAction, useContext, useState} from "react";
 
 type UserContextType = {
-    nickname?: string
-    setNickname: Dispatch<SetStateAction<string>>
+    username?: string
+    setUsername: Dispatch<SetStateAction<string>>
 }
 
 const UserContext = createContext<UserContextType>({
-    nickname: undefined,
-    setNickname: () => {}
+    username: undefined,
+    setUsername: () => {}
 })
 
 export const useUserContext = (): UserContextType =>
@@ -18,13 +18,13 @@ type UserContextProviderProps = {
 }
 
 export const UserContextProvider = ({children}: UserContextProviderProps) => {
-    const [nickname, setNickname] = useState<string | undefined>(undefined)
+    const [username, setUsername] = useState<string | undefined>(undefined)
 
     return (
         <UserContext.Provider
             value={{
-                nickname,
-                setNickname
+                username: username,
+                setUsername: setUsername
             }}
         >
             {children}

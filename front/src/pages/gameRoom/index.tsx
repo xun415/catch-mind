@@ -1,15 +1,32 @@
 import {useSocketContext} from "@contexts/socket";
 import {useEffect, useState} from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
+import {useLocation} from "react-router-dom";
+import * as webRTCHandler from "../../utils/webRTCHandler";
+import {useUserContext} from "@contexts/user/UserContext";
 
 const GameRoomPage = () => {
     const { socket } = useSocketContext()
+    const { username } = useUserContext()
+    const isRoomHost = new URLSearchParams(useLocation().search).get('isHost') === 'true'
+    const [roomId, setRoomId] = useState<string | null>(null)
 
     useEffect(() => {
         if (socket) {
-            socket.on('dd', data => {
-
+            // 오디오 접근 및 방 생성 요청
+            webRTCHandler.setLocalAudioStream(() => {
+                socket.emit('create-new-room', { username })
+            }, () => {
+                alert('오디오 접근에 실패했습니다.')
             })
+
+            // 방 생성 성공 시
+            socket.on('room-created', (data: {roomId: string}) => {
+                console.log('[방 생성 성공] 방 아이디: ', data)
+                const { roomId } = data
+                setRoomId(roomId)
+            })
+
         }
     },[])
 

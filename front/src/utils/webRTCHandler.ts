@@ -12,6 +12,15 @@ const DEFAULT_CONSTRAINS = {
 
 let localStream;
 
+export const setLocalAudioStream = (onSuccess, onFail) => {
+    navigator.mediaDevices.getUserMedia(DEFAULT_CONSTRAINS).then(stream => {
+        localStream = stream;
+        onSuccess()
+    }).catch(e => {
+        onFail(e)
+    })
+}
+
 export const prepareNewPeerConnection = (connUserSocketId, isRequester, onSignalData, onStream) => {
 
     peers[connUserSocketId] = new Peer({
