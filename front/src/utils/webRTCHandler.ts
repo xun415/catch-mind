@@ -25,9 +25,17 @@ export const prepareNewPeerConnection = (connUserSocketId: string, isRequester: 
 
     peers[connUserSocketId] = new Peer({
         initiator: isRequester,
-        config: DEFAULT_CONSTRAINS,
+        config: {
+            iceServers: [
+                {
+                    urls: 'stun:stun.l.google.com:19302'
+                }
+            ]
+        },
         stream: localStream,
     });
+
+    console.log('peers[connUserSocketId] ', peers[connUserSocketId])
 
     peers[connUserSocketId].on("signal", (data) => {
         // webRTC offer, webRTC Answer (SDP informations), ice candidates

@@ -1,27 +1,33 @@
 import {useSocketContext} from "@contexts/socket";
 import {useEffect, useState} from "react";
-import {Player} from "../types";
+import {Player} from "../types/data";
+import {PlayerArea} from "@components/organisms/PlayerArea";
 
 const PlayerListContainer = () => {
-    /**
-     * todo
-     * - 유저 리스트 보여주기 (목록, 점수, 진행중 등)
-     */
     const { socket } = useSocketContext()
     const [players, setPlayers] = useState<Player[]>([])
 
     useEffect(() => {
         if (socket) {
             socket.on('player-update', (data: { players: Player[] }) => {
-                console.log('data: ', data.players)
-                setPlayers(data.players)
+                // 순위에 맞게 정렬
+                setPlayers(data.players.sort((a, b) => b.score - a.score))
             })
         }
     }, [])
 
+
+
     return (
         <div>
-            {players.toString()}
+            <PlayerArea>
+                {
+                    players
+                        .map((player, index) =>
+                            <PlayerArea.Card key={player.username} username={player.username} score={player.score} rank={index + 1}/>
+                        )
+                }
+            </PlayerArea>
         </div>
     )
 }

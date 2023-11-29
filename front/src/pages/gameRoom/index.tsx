@@ -11,15 +11,19 @@ const GameRoomPage = () => {
     const { socket } = useSocketContext()
     const { username } = useUserContext()
     const isRoomHost = new URLSearchParams(useLocation().search).get('isHost') === 'true'
-    const [roomId, setRoomId] = useState<string | undefined>(undefined)
+    const [roomId, setRoomId] = useState<string | undefined>(new URLSearchParams(useLocation().search).get('id')?? undefined)
     const playersStreamRefs = useRef<Map<string, Stream>>(new Map())
-    console.log(playersStreamRefs)
+
+    console.log(isRoomHost)
 
     useEffect(() => {
         if (socket) {
             // 오디오 접근 및 방 생성 요청
             webRTCHandler.setLocalAudioStream(() => {
-                socket.emit('create-new-room', { username })
+                isRoomHost?
+                    socket.emit('create-new-room', { username })
+                    :
+                    socket.emit('join-room', { username, roomId })
             }, () => {
                 alert('오디오 접근에 실패했습니다.')
             })
@@ -33,6 +37,7 @@ const GameRoomPage = () => {
 
             // peer 연결 준비 요청 받을 시 (방 입장시 server 에서 이벤트 발생)
             socket.on('conn-prepare', (data: {connUserSocketId: string}) => {
+                console.log('[conn-prepare] ', data)
                 const { connUserSocketId } = data;
 
                 // peer connection 준비
@@ -46,6 +51,14 @@ const GameRoomPage = () => {
                 socket.emit('conn-init', { connUserSocketId })
             })
 
+            socket.on('conn-signal', data => {
+                webRTCHandler.handleSignalingData(data)
+            })
+        }
+        return () => {
+            if (socket) {
+                socket.emit('disconnect')
+            }
         }
     },[])
 

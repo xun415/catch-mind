@@ -12,7 +12,10 @@ const PORT = process.env.PORT || 5002
 const app = express();
 
 const server = http.createServer(app)
-app.use(cors())
+app.use(cors({
+    credentials: true,
+    origin: ['http://localhost:5173'],
+}))
 
 const io = require('socket.io')(server, {
     cors: {
@@ -38,16 +41,19 @@ app.get('/api/rooms/:roomId/is-full', (req, res) => {
     const {roomId} = req.params
     const room = rooms.find(room => room.id === roomId)
 
+    console.log('room: ', room)
+
     if (!room) {
         // 404 리턴
-        return res.status(404)
+        return res.status(404).send()
     }
 
     if (room.players.length > room.maxPlayerNumber) {
         return res.send({ isFull: true })
-    } else {
-        return res.send({ isFull: false })
     }
+
+    return res.send({ isFull: false })
+
 })
 
 io.on('connection', (socket) => {
@@ -58,6 +64,7 @@ io.on('connection', (socket) => {
     })
 
     socket.on('join-room', (data) => {
+        console.log('join-room', data)
         joinRoomHandler(data, socket)
     })
 
@@ -74,13 +81,16 @@ io.on('connection', (socket) => {
     })
 
     socket.on('conn-signal', data => {
+        console.log('[server] conn-signal')
         signalingHandler(data, socket)
     })
 
     socket.on('conn-init', data => {
+        console.log('[server] conn-init')
         initializeConnectionHandler(data, socket)
     })
 })
+
 
 // 게임 방 생성
 const createNewRoomHandler = (data, socket) => {
