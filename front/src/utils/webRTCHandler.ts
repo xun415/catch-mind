@@ -21,7 +21,7 @@ export const setLocalAudioStream = (onSuccess, onFail) => {
     })
 }
 
-export const prepareNewPeerConnection = (connUserSocketId, isRequester, onSignalData, onStream) => {
+export const prepareNewPeerConnection = (connUserSocketId: string, isRequester: boolean, onSignalData, onStream) => {
 
     peers[connUserSocketId] = new Peer({
         initiator: isRequester,
