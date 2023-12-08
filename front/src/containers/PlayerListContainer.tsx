@@ -3,18 +3,11 @@ import {useEffect, useState} from "react";
 import {Player} from "../types/data";
 import {PlayerArea} from "@components/organisms/PlayerArea";
 
-const PlayerListContainer = () => {
-    const { socket } = useSocketContext()
-    const [players, setPlayers] = useState<Player[]>([])
+type Props = {
+    players: Player[]
+}
+const PlayerListContainer = ({ players }: Props) => {
 
-    useEffect(() => {
-        if (socket) {
-            socket.on('player-update', (data: { players: Player[] }) => {
-                // 순위에 맞게 정렬
-                setPlayers(data.players.sort((a, b) => b.score - a.score))
-            })
-        }
-    }, [])
 
 
 

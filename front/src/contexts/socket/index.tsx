@@ -1,11 +1,13 @@
 import io, { type Socket } from 'socket.io-client'
 import {createContext, ReactNode, useContext, useEffect, useRef, useState} from "react";
+import {Stream} from "stream";
 
 const SERVER_URL = 'http://localhost:5002'
 
 type SocketContextType = {
     socket: Socket| null
     socketId: string | null
+
 }
 
 const SocketContext = createContext<SocketContextType>({
@@ -23,6 +25,7 @@ type SocketContextProviderProps = {
 export const SocketContextProvider = ({ children }: SocketContextProviderProps) => {
     const [socketValue, setSocketValue] = useState<Socket | null>(null)
     const [socketId, setSocketId] = useState<string | null>(null)
+    const playersStreamRefs = useRef<{[key: string]: Stream}>({})
 
     useEffect(() =>{
         const socket = io(SERVER_URL)

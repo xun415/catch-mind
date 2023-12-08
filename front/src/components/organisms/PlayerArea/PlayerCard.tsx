@@ -1,4 +1,4 @@
-import {Card, CardBody, CardHeader, Heading} from "@chakra-ui/react";
+import {Card, CardBody, CardHeader, Heading, Text} from "@chakra-ui/react";
 
 type Props = {
     username: string

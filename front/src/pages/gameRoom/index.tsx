@@ -1,18 +1,24 @@
 import {useSocketContext} from "@contexts/socket";
-import {useEffect, useRef, useState} from "react";
+import {createRef, useEffect, useRef, useState} from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
 import {useLocation} from "react-router-dom";
 import * as webRTCHandler from "../../utils/webRTCHandler";
 import {useUserContext} from "@contexts/user/UserContext";
 import {Stream} from "stream";
 import GameBarContainer from "../../containers/GameBarContainer";
+import PlayerListContainer from "../../containers/PlayerListContainer";
+import GameAreaContainer from "../../containers/GameAreaContainer";
+import ChattingContainer from "../../containers/ChattingContainer";
+import {useStreamContext} from "@contexts/stream";
+import {Player, User} from "../../types/data";
 
 const GameRoomPage = () => {
     const { socket } = useSocketContext()
     const { username } = useUserContext()
     const isRoomHost = new URLSearchParams(useLocation().search).get('isHost') === 'true'
     const [roomId, setRoomId] = useState<string | undefined>(new URLSearchParams(useLocation().search).get('id')?? undefined)
-    const playersStreamRefs = useRef<Map<string, Stream>>(new Map())
+    const { streamsRef } = useStreamContext()
+    const [players, setPlayers] = useState<Player[]>([])
 
     console.log(isRoomHost)
 
@@ -35,31 +41,52 @@ const GameRoomPage = () => {
                 setRoomId(roomId)
             })
 
+
+
+            socket.on('conn-signal', data => {
+                webRTCHandler.handleSignalingData(data)
+            })
+
             // peer 연결 준비 요청 받을 시 (방 입장시 server 에서 이벤트 발생)
             socket.on('conn-prepare', (data: {connUserSocketId: string}) => {
-                console.log('[conn-prepare] ', data)
                 const { connUserSocketId } = data;
 
                 // peer connection 준비
                 webRTCHandler.prepareNewPeerConnection(connUserSocketId, false, (data) => {
                     socket.emit('conn-signal', data)
                 }, (stream, connUserSocketId) => {
-                    playersStreamRefs.current.set(connUserSocketId, stream)
+                    if (streamsRef.current) {
+                        streamsRef.current[connUserSocketId] = stream
+                    }
                 })
 
                 // 준비 완료 이벤트 전달
                 socket.emit('conn-init', { connUserSocketId })
             })
 
-            socket.on('conn-signal', data => {
-                webRTCHandler.handleSignalingData(data)
+            socket.on('conn-init', (data: {connUserSocketId: string}) => {
+                const { connUserSocketId } = data
+                webRTCHandler.prepareNewPeerConnection(connUserSocketId, true, (data) => {
+                    socket.emit('conn-signal', data)
+                }, (stream, connUserSocketId) => {
+                    if (streamsRef.current) {
+                        streamsRef.current[connUserSocketId] = stream
+                    }
+                })
             })
+
+            socket.on('player-update', (data: { players: Player[] }) => {
+                console.log('data: ', data)
+                // 순위에 맞게 정렬
+                setPlayers(data.players.sort((a, b) => b.score - a.score))
+            })
+
         }
-        return () => {
-            if (socket) {
-                socket.emit('disconnect')
-            }
-        }
+        // return () => {
+        //     if (socket) {
+        //         socket.emit('disconnect')
+        //     }
+        // }
     },[])
 
     /**
@@ -73,11 +100,6 @@ const GameRoomPage = () => {
      */
     return (
         <>
-            {
-                Array.from(playersStreamRefs.current?.keys()).map(key => {
-                    console.log(playersStreamRefs.current.get(key))
-                })
-            }
             <Grid
                 border={'1px solid black'}
                 gridTemplateAreas={{
@@ -104,9 +126,15 @@ const GameRoomPage = () => {
                 <GridItem gridArea={'bar'}>
                     <GameBarContainer roomId={roomId} />
                 </GridItem>
-                <GridItem gridArea={'playerList'} h={100}>playerList</GridItem>
-                <GridItem gridArea={'canvas'} h={100}>canvas</GridItem>
-                <GridItem gridArea={'chatting'}>chatting</GridItem>
+                <GridItem gridArea={'playerList'} h={100}>
+                    <PlayerListContainer players={players}/>
+                </GridItem>
+                <GridItem gridArea={'canvas'} h={100}>
+                    <GameAreaContainer players={players} />
+                </GridItem>
+                <GridItem gridArea={'chatting'}>
+                    <ChattingContainer />
+                </GridItem>
             </Grid>
         </>
     )
