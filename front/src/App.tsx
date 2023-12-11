@@ -10,9 +10,7 @@ function App() {
       <ChakraProvider>
               <SocketContextProvider>
                   <StreamContextProvider>
-                      <UserContextProvider>
-                          <Routes />
-                      </UserContextProvider>
+                      <Routes />
                   </StreamContextProvider>
               </SocketContextProvider>
       </ChakraProvider>

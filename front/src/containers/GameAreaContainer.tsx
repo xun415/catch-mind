@@ -4,12 +4,14 @@ import * as webRTCHandler from "../utils/webRTCHandler";
 import {useSocketContext} from "@contexts/socket";
 import {useStreamContext} from "@contexts/stream";
 import {Player} from "../types/data";
+import useUserStore from "../stores/useUserStore";
 
 type Props = {
     players: Player[]
 }
 const GameAreaContainer = ({ players }: Props) => {
     const { socket } = useSocketContext()
+    const username = useUserStore(store => store.username)
     const { streamsRef } = useStreamContext()
 
     useEffect(() => {
@@ -22,10 +24,14 @@ const GameAreaContainer = ({ players }: Props) => {
             }
         })
     }, [players])
+
     return (
         <div style={{ width: '1000px', height: '1000px', border: '1px solid black'}}>
             {
-                players.map(player => <video key={`${player.socketId}-video`} id={`${player.socketId}-video`} autoPlay width={'100px'} height={'100px'}></video>)
+                players
+                    .filter(player => player.username !== username)
+                    .map(player =>
+                        <video key={`${player.socketId}-video`} id={`${player.socketId}-video`} autoPlay width={'100px'} height={'100px'}></video>)
             }
             {/*{*/}
             {/*    streamsRef.current && Object.keys(streamsRef.current)?.map(playerSocketId => {*/}

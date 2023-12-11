@@ -21,6 +21,13 @@ export const setLocalAudioStream = (onSuccess, onFail) => {
     })
 }
 
+
+export const setCanvasStream = (canvasStream: MediaStream, onSuccess?: () => void, onFail?: () => void) => {
+    const audioTrack = localStream.getTracks().filter(track => track.kind === 'audio')[0]
+    canvasStream.addTrack(audioTrack)
+    localStream = canvasStream
+}
+
 export const prepareNewPeerConnection = (connUserSocketId: string, isRequester: boolean, onSignalData, onStream) => {
 
     peers[connUserSocketId] = new Peer({

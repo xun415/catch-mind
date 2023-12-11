@@ -1,20 +1,19 @@
 import {useSocketContext} from "@contexts/socket";
-import {createRef, useEffect, useRef, useState} from "react";
+import { useEffect, useState} from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
 import {useLocation} from "react-router-dom";
 import * as webRTCHandler from "../../utils/webRTCHandler";
-import {useUserContext} from "@contexts/user/UserContext";
-import {Stream} from "stream";
 import GameBarContainer from "../../containers/GameBarContainer";
 import PlayerListContainer from "../../containers/PlayerListContainer";
 import GameAreaContainer from "../../containers/GameAreaContainer";
 import ChattingContainer from "../../containers/ChattingContainer";
 import {useStreamContext} from "@contexts/stream";
-import {Player, User} from "../../types/data";
+import {Player} from "../../types/data";
+import useUserStore from "../../stores/useUserStore";
 
 const GameRoomPage = () => {
     const { socket } = useSocketContext()
-    const { username } = useUserContext()
+    const username = useUserStore(store => store.username)
     const isRoomHost = new URLSearchParams(useLocation().search).get('isHost') === 'true'
     const [roomId, setRoomId] = useState<string | undefined>(new URLSearchParams(useLocation().search).get('id')?? undefined)
     const { streamsRef } = useStreamContext()

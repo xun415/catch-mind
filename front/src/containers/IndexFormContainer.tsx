@@ -5,10 +5,11 @@ import {useState} from "react";
 import JoinRoomModal from "@components/organisms/JoinRoomModal";
 import {getIsRoomFull} from "@apis/room";
 import {AxiosError} from "axios";
+import useUserStore from "../stores/useUserStore";
 
 const IndexFormContainer = () => {
     let navigate = useNavigate()
-    const { setUsername } = useUserContext()
+    const setUsername = useUserStore(store => store.setUsername)
     const [isJoinRoomModalOpen, setIsJoinRoomModalOpen] = useState(false)
     const [joinRoomErrorMessage, setJoinRoomErrorMessage] = useState('')
 

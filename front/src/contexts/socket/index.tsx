@@ -23,14 +23,16 @@ type SocketContextProviderProps = {
 }
 
 export const SocketContextProvider = ({ children }: SocketContextProviderProps) => {
-    const [socketValue, setSocketValue] = useState<Socket | null>(null)
+    // const [socketValue, setSocketValue] = useState<Socket | null>(null)
+    const socketRef = useRef<Socket| null>(null)
     const [socketId, setSocketId] = useState<string | null>(null)
     const playersStreamRefs = useRef<{[key: string]: Stream}>({})
 
     useEffect(() =>{
         const socket = io(SERVER_URL)
         setSocketId(socket.id)
-        setSocketValue(socket)
+        socketRef.current = socket
+        // setSocketValue(socket)
         console.log('socket connected: ', socket)
 
         return () => {
@@ -42,7 +44,7 @@ export const SocketContextProvider = ({ children }: SocketContextProviderProps) 
     return (
         <SocketContext.Provider
             value={{
-                socket: socketValue,
+                socket: socketRef.current,
                 socketId
             }}>
             {children}
