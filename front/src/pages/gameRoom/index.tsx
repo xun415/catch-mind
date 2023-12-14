@@ -18,8 +18,7 @@ const GameRoomPage = () => {
     const [roomId, setRoomId] = useState<string | undefined>(new URLSearchParams(useLocation().search).get('id')?? undefined)
     const { streamsRef } = useStreamContext()
     const [players, setPlayers] = useState<Player[]>([])
-
-    console.log(isRoomHost)
+    const [connectedSocketIds, setConnectedSocketIds] = useState<string[]>([])
 
     useEffect(() => {
         if (socket) {
@@ -35,7 +34,6 @@ const GameRoomPage = () => {
 
             // 방 생성 성공 시
             socket.on('room-created', (data: {roomId: string}) => {
-                console.log('[방 생성 성공] 방 아이디: ', data)
                 const { roomId } = data
                 setRoomId(roomId)
             })
@@ -44,6 +42,7 @@ const GameRoomPage = () => {
 
             socket.on('conn-signal', data => {
                 webRTCHandler.handleSignalingData(data)
+                setConnectedSocketIds(prev => [...prev, data.connUserSocketId])
             })
 
             // peer 연결 준비 요청 받을 시 (방 입장시 server 에서 이벤트 발생)
@@ -70,12 +69,12 @@ const GameRoomPage = () => {
                 }, (stream, connUserSocketId) => {
                     if (streamsRef.current) {
                         streamsRef.current[connUserSocketId] = stream
+                        setConnectedSocketIds(prev => [...prev, connUserSocketId])
                     }
                 })
             })
 
             socket.on('player-update', (data: { players: Player[] }) => {
-                console.log('data: ', data)
                 // 순위에 맞게 정렬
                 setPlayers(data.players.sort((a, b) => b.score - a.score))
             })
@@ -129,7 +128,7 @@ const GameRoomPage = () => {
                     <PlayerListContainer players={players}/>
                 </GridItem>
                 <GridItem gridArea={'canvas'} h={100}>
-                    <GameAreaContainer players={players} />
+                    <GameAreaContainer players={players} connectedSocketIds={connectedSocketIds}/>
                 </GridItem>
                 <GridItem gridArea={'chatting'}>
                     <ChattingContainer />

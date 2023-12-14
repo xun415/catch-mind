@@ -7,14 +7,17 @@ let streams = []
 
 const DEFAULT_CONSTRAINS = {
     audio: true,
-    video: false
+    video: true
 }
 
 let localStream;
+let localCanvasStream;
 
 export const setLocalAudioStream = (onSuccess, onFail) => {
     navigator.mediaDevices.getUserMedia(DEFAULT_CONSTRAINS).then(stream => {
-        localStream = stream;
+        const newStream = new MediaStream([stream.getAudioTracks()[0], localCanvasStream.getVideoTracks()[0]])
+
+        localStream = newStream
         onSuccess()
     }).catch(e => {
         onFail(e)
@@ -23,9 +26,7 @@ export const setLocalAudioStream = (onSuccess, onFail) => {
 
 
 export const setCanvasStream = (canvasStream: MediaStream, onSuccess?: () => void, onFail?: () => void) => {
-    const audioTrack = localStream.getTracks().filter(track => track.kind === 'audio')[0]
-    canvasStream.addTrack(audioTrack)
-    localStream = canvasStream
+    localCanvasStream = canvasStream
 }
 
 export const prepareNewPeerConnection = (connUserSocketId: string, isRequester: boolean, onSignalData, onStream) => {
@@ -41,8 +42,6 @@ export const prepareNewPeerConnection = (connUserSocketId: string, isRequester: 
         },
         stream: localStream,
     });
-
-    console.log('peers[connUserSocketId] ', peers[connUserSocketId])
 
     peers[connUserSocketId].on("signal", (data) => {
         // webRTC offer, webRTC Answer (SDP informations), ice candidates

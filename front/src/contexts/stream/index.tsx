@@ -5,7 +5,7 @@ import {Stream} from "stream";
 const SERVER_URL = 'http://localhost:5002'
 
 type StreamContextType = {
-   streamsRef: RefObject<{ [key: string]: Stream }>
+   streamsRef: RefObject<{ [key: string]: MediaStream }>
 
 }
 
@@ -21,7 +21,7 @@ type SteamContextProviderProps = {
 }
 
 export const StreamContextProvider = ({ children }: SteamContextProviderProps) => {
-    const streamsRef = useRef<{[key: string]: Stream}>({})
+    const streamsRef = useRef<{[key: string]: MediaStream}>({})
 
     return (
         <StreamContext.Provider value={{ streamsRef }}>

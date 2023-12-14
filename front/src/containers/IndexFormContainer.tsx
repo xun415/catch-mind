@@ -15,7 +15,6 @@ const IndexFormContainer = () => {
 
     // 방 참여하기 로직
     const onSubmitJoinRoom = (nickname: string) => {
-        console.log('[onSubmitJoinRoom]')
         setUsername(nickname)
 
         // 방 코드 입력 모달 표시
@@ -24,7 +23,6 @@ const IndexFormContainer = () => {
 
     // 참여할 방 코드 제출 시
     const onSubmitRoomId = async (roomId: string) => {
-        console.log(roomId)
 
         try {
             const result = await getIsRoomFull(roomId)
