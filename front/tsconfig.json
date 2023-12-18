@@ -34,7 +34,8 @@
       "@routes/*": ["./routes/*"],
       "@contexts/*": ["./contexts/*"]
     },
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "jsxImportSource": "@emotion/react"
   },
   "include": ["src"],
   "references": [{ "path": "./tsconfig.node.json" }]

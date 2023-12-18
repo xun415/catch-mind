@@ -5,7 +5,12 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), nodePolyfills({
+  plugins: [react({
+    jsxImportSource: '@emotion/react',
+    babel: {
+      plugins: ['@emotion/babel-plugin'],
+    },
+  }), nodePolyfills({
     globals: {
       Buffer: true, // can also be 'build', 'dev', or false
       global: true,

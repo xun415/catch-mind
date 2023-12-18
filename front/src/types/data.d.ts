@@ -12,7 +12,7 @@ export type Player = User & {
 
 export type Room = {
     // 룸 아이디
-    id: string
+    id: string | null
     //  소속 유저 리스트
     players: Player[]
     //  총 라운드

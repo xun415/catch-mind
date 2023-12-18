@@ -1,9 +1,11 @@
+import {Box} from "@chakra-ui/react";
+
 const ChattingContainer = () => {
 
     return (
-        <div>
+        <Box borderRadius={'1px solid black'} w={'100%'} h={'100%'}>
 
-        </div>
+        </Box>
     )
 }
 

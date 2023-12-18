@@ -14,8 +14,8 @@ const GameBar = ({ roomId, onClickCopyRoomId }: Props) => {
      * - 단어 영역
      */
     return (
-        <Center>
-            <Flex w={'90%'} borderRadius={'0 0 20px 20px'} border={'1px solid black'} borderTop={'0'} flexDirection={'column'} alignItems={'center'}>
+        <Center h={'100%'} >
+            <Flex w={'90%'} h={'100%'} borderRadius={'0 0 20px 20px'} border={'1px solid black'} borderTop={0} flexDirection={'column'} alignItems={'center'}>
                 <Flex alignItems={'center'}>
                     <Text>RoomId: {roomId ?? ''}</Text>
                     <>

@@ -1,7 +1,20 @@
-import {Box, Circle, HStack, VStack} from "@chakra-ui/react";
+import {
+    Box,
+    Button,
+    Circle,
+    HStack,
+    Slider,
+    SliderFilledTrack,
+    SliderThumb,
+    SliderTrack,
+    VStack
+} from "@chakra-ui/react";
 import {useEffect, useRef, useState} from "react";
 import {color} from "../../../constant/color";
 import {setCanvasStream} from "../../../utils/webRTCHandler";
+import {css} from "@emotion/react";
+
+const DEFAULT_LINE_WIDTH = 5
 
 const DrawingArea = () => {
     // @ts-ignore
@@ -51,9 +64,10 @@ const DrawingArea = () => {
         const ctx = canvasRef.current.getContext('2d')
         ctx.strokeStyle = color.흰색
         setCtx(ctx)
+        setDrawColor(color.흰색)
     }
 
-    const onClickReset = () => {
+    const resetCanvas = () => {
         const ctx = canvasRef.current.getContext('2d')
         ctx.fillStyle = color.흰색
         ctx.fillRect(0,0,800, 800)
@@ -71,29 +85,44 @@ const DrawingArea = () => {
         ctx.fillRect(0,0,800, 800)
         setCtx(ctx)
         setCanvasStream(canvas.captureStream(25))
+
+        return () => {
+            resetCanvas()
+        }
     }, [])
 
     return (
-        <VStack>
+        <VStack border={'2px solid black'} p={2} borderRadius={20}>
             <canvas
-                style={{
-                    border: '1px solid black'
-                }}
-                ref={canvasRef}
-                width={800} height={800} onMouseDown={startDrawing} onMouseLeave={endDrawing} onMouseUp={endDrawing}
+                css={css`
+                    border: 2px solid black;
+               `}
+                ref={canvasRef} onMouseDown={startDrawing} onMouseLeave={endDrawing} onMouseUp={endDrawing}
                 onMouseMove={drawing}
-            ></canvas>
+            />
             {/* 색 선택, 선 굵기, 지우개, 전체 지우기 */}
-            <HStack>
+            <HStack >
                 {/* 색 선택 */}
                 <input type="color" onChange={event => onChangeColor(event.target.value)} value={drawColor}/>
-                <Circle onClick={() => onChangeColor(color.검정)}>검정</Circle>
-                <Circle onClick={() => onChangeColor(color.빨강)}>빨강</Circle>
-                <Circle onClick={() => onChangeColor(color.파랑)}>파랑</Circle>
+                <Circle bg={color.검정} size={8} onClick={() => onChangeColor(color.검정)}></Circle>
+                <Circle bg={color.빨강} size={8} onClick={() => onChangeColor(color.빨강)}></Circle>
+                <Circle bg={color.파랑} size={8} onClick={() => onChangeColor(color.파랑)}></Circle>
+
                 {/* 선 굵기 */}
-                <input type="range" step={1} onChange={event => onChangeLineWidth(Number(event.target.value))}/>
-                <Box onClick={onClickErase}>지우개</Box>
-                <Box onClick={onClickReset}>전체 지우기</Box>
+                <Box border={'1px solid #E9EBEC'} w={'200px'} p={1} borderRadius={6}>
+                    <Slider
+                        min={0}
+                        max={10}
+                        aria-label='선 굵기' defaultValue={DEFAULT_LINE_WIDTH} onChange={value => onChangeLineWidth(Number(value))}>
+                        <SliderTrack>
+                            <SliderFilledTrack />
+                        </SliderTrack>
+                        <SliderThumb />
+                    </Slider>
+                </Box>
+
+                <Button onClick={onClickErase} colorScheme={'blue'}>지우개</Button>
+                <Button onClick={resetCanvas} colorScheme={'red'}>전체 지우기</Button>
             </HStack>
         </VStack>
     )
