@@ -127,7 +127,7 @@ const GameRoomPage = () => {
                     <PlayerListContainer players={players}/>
                 </GridItem>
                 <GridItem gridArea={'canvas'}>
-                    <GameAreaContainer players={players} connectedSocketIds={connectedSocketIds}/>
+                    <GameAreaContainer isRoomHost={isRoomHost} players={players} connectedSocketIds={connectedSocketIds}/>
                 </GridItem>
                 <GridItem gridArea={'chatting'}>
                     <ChattingContainer />

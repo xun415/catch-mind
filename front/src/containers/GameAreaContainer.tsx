@@ -1,4 +1,4 @@
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {useSocketContext} from "@contexts/socket";
 import {useStreamContext} from "@contexts/stream";
 import {Player} from "../types/data";
@@ -7,14 +7,57 @@ import DrawingArea from "@components/organisms/DrawingArea";
 import {Center} from "@chakra-ui/react";
 import GameSetting from "@components/organisms/GameSetting";
 
+const initRoomConfig = {
+    totalRound: 3,
+    maxPlayerNumber: 4,
+    timePerRound: 120
+}
+
 type Props = {
+    isRoomHost: boolean
     players: Player[]
     connectedSocketIds: string[]
 }
-const GameAreaContainer = ({ players,connectedSocketIds }: Props) => {
+const GameAreaContainer = ({ isRoomHost, players,connectedSocketIds }: Props) => {
     const { socket } = useSocketContext()
     const username = useUserStore(store => store.username)
     const { streamsRef } = useStreamContext()
+    const [roomConfig, setRoomConfig] = useState(initRoomConfig)
+
+
+    // 게임 설정 변경 시
+    const onConfigChange = (newOption) => {
+        if (socket) {
+            socket.emit('change-room-config', newOption)
+        }
+        setRoomConfig(prev => {
+            const newConfig = { ...prev }
+            newConfig[newOption.key] = newOption.value
+
+            return newConfig
+        })
+    }
+
+    // host 게임 시작 버튼 클릭 시
+    const onClickStartGame = () => {
+        if (socket) {
+            socket.emit('start-game')
+        }
+    }
+
+    useEffect(() => {
+        if (socket) {
+            // 게임 시작 이벤트 시
+            socket.on('on-game-start', () => {
+
+            })
+
+            // 게임 설정 이벤트 시
+            socket.on('on-change-room-config', () => {
+
+            })
+        }
+    }, [])
 
     useEffect(() => {
         connectedSocketIds.forEach(socketId => {
@@ -50,7 +93,7 @@ const GameAreaContainer = ({ players,connectedSocketIds }: Props) => {
                         <video key={`${player.socketId}-video`} id={`${player.socketId}-video`} autoPlay width={'800px'} height={'800px'}></video>)
             }
             {/*<DrawingArea />*/}
-            <GameSetting />
+            <GameSetting isRoomHost={isRoomHost} onOptionChange={onConfigChange} roomConfig={roomConfig} onClickStartGame={onClickStartGame}/>
 
         </Center>
     )
