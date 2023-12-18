@@ -56,6 +56,18 @@ app.get('/api/rooms/:roomId/is-full', (req, res) => {
 
 })
 
+app.get('/api/rooms/:roomId', (req, res) => {
+    const {roomId} = req.params
+    const room = rooms.find(room => room.id === roomId)
+
+    if (!room) {
+        // 404 리턴
+        return res.status(404).send()
+    }
+
+    return res.send({ room })
+})
+
 io.on('connection', (socket) => {
     console.log('socket', socket.id)
     socket.on('create-new-room', (data) => {
@@ -66,10 +78,6 @@ io.on('connection', (socket) => {
     socket.on('join-room', (data) => {
         console.log('join-room', data)
         joinRoomHandler(data, socket)
-    })
-
-    socket.on('change-room-setting', (data) => {
-        changeRoomSettingHandler(data)
     })
 
     socket.on('complete-setting', data => {
@@ -88,6 +96,40 @@ io.on('connection', (socket) => {
     socket.on('conn-init', data => {
         console.log('[server] conn-init')
         initializeConnectionHandler(data, socket)
+    })
+
+    // 게임방 설정 변경 시
+    socket.on('change-room-config', (data) => {
+        changeRoomSettingHandler(data)
+    })
+
+    // 게임 시작 이벤트 시
+    socket.on('start-game', () => {
+        /**
+         * todo
+         * 채팅 이벤트 emit(선택중 등)
+         * 방 라운드 정보 업데이트 및 진행 유저 지정
+         */
+    })
+
+    // 진행 유저가 선택지 골랐을 시
+    socket.on('choose-question', (data) => {
+        /**
+         * todo
+         * 유저가 고른 값을 현 라운드의 정답으로 저장하고,
+         * 현 라운드 진행
+         */
+
+    })
+
+    // 정답 확인 시
+    socket.on('guess-answer', data => {
+        /**
+         * todo
+         * 채팅 이벤트 emit(전체 유저 채팅 목록에 정답 내역 보이게 함)
+         * 정답 확인
+         * 정답 시 -> 유저정보(스코어) 업데이트, 방 라운드 정보 업데이트 후 다음 라운드 유저 진행
+         */
     })
 })
 
@@ -126,11 +168,11 @@ const createNewRoomHandler = (data, socket) => {
             }
         ],
         currentRound: 0,
-        // default
+        currentPlayer: null,
+        // config
         maxPlayerNumber: 4,
         timePerRound: 60,
         totalRound: 3,
-        currentPlayer: null
     }
 
     // join socket.io room

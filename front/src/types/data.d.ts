@@ -24,8 +24,6 @@ export type Room = RoomConfig & {
     id: string | null
     //  소속 유저 리스트
     players: Player[]
-    // 세팅 완료 여부
-    isSettingCompleted: boolean
     // 현재 라운드
     currentRound: number
     // 현재 라운드 진행중인 플레이어

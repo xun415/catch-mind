@@ -1,10 +1,14 @@
-import {Room} from "../types";
+import {Player, Room, RoomConfig} from "../types/data";
 import {create} from "zustand";
 import {devtools} from "zustand/middleware";
 
-type UseGameRoomStore = Room
-
-type RoomConfig = Pick<Room, 'totalRound' | 'maxPlayerNumber' | 'timePerRound' | 'isSettingCompleted'>
+type UseGameRoomStore = {
+    room: Room
+    setRoomConfig: (newConfig: RoomConfig) => void
+    setId: (id: string) => void
+    setCurrentRound: (v: number) => void
+    setCurrentPlayer: (player: Player) => void
+}
 
 const initStatus: Room = {
     id: null,
@@ -13,12 +17,9 @@ const initStatus: Room = {
     totalRound: 3,
     maxPlayerNumber: 4,
     timePerRound: 180,
-    isSettingCompleted: false,
     currentRound: 0,
     currentPlayer: null
 }
-
-
 
 export const useGameRoomStore = create<UseGameRoomStore>()(
     devtools(
@@ -30,7 +31,24 @@ export const useGameRoomStore = create<UseGameRoomStore>()(
                    ...newConfig
                 }))
             },
-
+            setId: (id: string) => {
+                set(prev => ({
+                    ...prev,
+                    id
+                }))
+            },
+            setCurrentRound: (currentRound: number) => {
+                set(prev => ({
+                    ...prev,
+                    currentRound
+                }))
+            },
+            setCurrentPlayer: (currentPlayer) => {
+                set(prev => ({
+                    ...prev,
+                    currentPlayer
+                }))
+            },
         })
     )
 )

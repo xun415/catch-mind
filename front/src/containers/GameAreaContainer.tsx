@@ -1,17 +1,21 @@
 import {useEffect, useState} from "react";
 import {useSocketContext} from "@contexts/socket";
 import {useStreamContext} from "@contexts/stream";
-import {Player} from "../types/data";
+import {Player, RoomConfig} from "../types/data";
 import useUserStore from "../stores/useUserStore";
 import DrawingArea from "@components/organisms/DrawingArea";
 import {Center} from "@chakra-ui/react";
 import GameSetting from "@components/organisms/GameSetting";
+import {GAME_STATUS} from "../constant/game";
+import {useGameRoomStore} from "../stores/useGameRoomStore";
 
 const initRoomConfig = {
     totalRound: 3,
     maxPlayerNumber: 4,
     timePerRound: 120
 }
+
+
 
 type Props = {
     isRoomHost: boolean
@@ -22,8 +26,10 @@ const GameAreaContainer = ({ isRoomHost, players,connectedSocketIds }: Props) =>
     const { socket } = useSocketContext()
     const username = useUserStore(store => store.username)
     const { streamsRef } = useStreamContext()
+    // 게임방 설정
     const [roomConfig, setRoomConfig] = useState(initRoomConfig)
-
+    // 게임방 상태
+    const [gameStatus, setGameStatus] = useState(GAME_STATUS.설정중)
 
     // 게임 설정 변경 시
     const onConfigChange = (newOption) => {
@@ -48,13 +54,13 @@ const GameAreaContainer = ({ isRoomHost, players,connectedSocketIds }: Props) =>
     useEffect(() => {
         if (socket) {
             // 게임 시작 이벤트 시
-            socket.on('on-game-start', () => {
-
+            socket.on('start-game', () => {
+                setGameStatus(GAME_STATUS.단어선택중)
             })
 
             // 게임 설정 이벤트 시
-            socket.on('on-change-room-config', () => {
-
+            socket.on('change-room-config', (data: RoomConfig) => {
+                setRoomConfig(data)
             })
         }
     }, [])
@@ -93,7 +99,15 @@ const GameAreaContainer = ({ isRoomHost, players,connectedSocketIds }: Props) =>
                         <video key={`${player.socketId}-video`} id={`${player.socketId}-video`} autoPlay width={'800px'} height={'800px'}></video>)
             }
             {/*<DrawingArea />*/}
-            <GameSetting isRoomHost={isRoomHost} onOptionChange={onConfigChange} roomConfig={roomConfig} onClickStartGame={onClickStartGame}/>
+            {
+                gameStatus === GAME_STATUS.설정중 ?
+                    <GameSetting isRoomHost={isRoomHost} onOptionChange={onConfigChange} roomConfig={roomConfig} onClickStartGame={onClickStartGame}/>
+                    : null
+            }
+            {
+                (gameStatus === GAME_STATUS.게임중)
+            }
+
 
         </Center>
     )
