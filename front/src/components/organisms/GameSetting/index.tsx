@@ -20,6 +20,7 @@ const GameSetting = ({ isRoomHost, onOptionChange, roomConfig, onClickStartGame 
         const newValue = Number(event.target.value)
         onOptionChange({ key: subject, value: newValue })
     }
+    console.log('isRoomHost: ', isRoomHost)
     /**
      * [게임 설정]
      *
@@ -51,7 +52,7 @@ const GameSetting = ({ isRoomHost, onOptionChange, roomConfig, onClickStartGame 
                 <FormLabel>총 라운드</FormLabel>
                 <Select
                     placeholder='총 라운드'
-                    isReadOnly={!isRoomHost}
+                    isDisabled={!isRoomHost}
                     value={roomConfig.totalRound}
                     onChange={event => onChangeRoomConfigOption(event, 'totalRound')}
                 >
@@ -70,7 +71,7 @@ const GameSetting = ({ isRoomHost, onOptionChange, roomConfig, onClickStartGame 
             </FormControl>
             <FormControl>
                 <FormLabel>참가 인원</FormLabel>
-                <Select placeholder='참가인원' value={roomConfig.maxPlayerNumber} isReadOnly={!isRoomHost} onChange={event => onChangeRoomConfigOption(event, 'maxPlayerNumber')}>
+                <Select placeholder='참가인원' value={roomConfig.maxPlayerNumber} isDisabled={!isRoomHost} onChange={event => onChangeRoomConfigOption(event, 'maxPlayerNumber')}>
                     <>
                         {
                             PLAYER_LIMIT_OPTION.map((option) =>
@@ -90,7 +91,8 @@ const GameSetting = ({ isRoomHost, onOptionChange, roomConfig, onClickStartGame 
                     placeholder='제한 시간'
                     value={roomConfig.timePerRound}
                     onChange={event => onChangeRoomConfigOption(event, 'timePerRound')}
-                    isReadOnly={!isRoomHost}>
+                    isDisabled={!isRoomHost}
+                >
                     <>
                         {
                             ROUND_TIME_OPTION.map((option) =>

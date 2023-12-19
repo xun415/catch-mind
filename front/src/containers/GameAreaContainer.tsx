@@ -9,6 +9,7 @@ import GameSetting from "@components/organisms/GameSetting";
 import {GAME_STATUS} from "../constant/game";
 import {useGameRoomStore} from "../stores/useGameRoomStore";
 import {css} from "@emotion/react";
+import WordSelector from "@components/organisms/WordSelector";
 
 const initRoomConfig = {
     totalRound: 3,
@@ -17,7 +18,7 @@ const initRoomConfig = {
 }
 
 type Props = {
-    roomId: string
+    roomId?: string
     isRoomHost: boolean
     players: Player[]
     connectedSocketIds: string[]
@@ -31,8 +32,13 @@ const GameAreaContainer = ({ roomId, isRoomHost, players,connectedSocketIds }: P
     const [roomConfig, setRoomConfig] = useState(initRoomConfig)
     // 게임방 상태
     const [gameStatus, setGameStatus] = useState(GAME_STATUS.설정중)
-    const [currentPlayer] = useGameRoomStore(state => [state.currentPlayer])
+    // 단어 선택 옵션 (전역 필요성 있음)
+    const [wordOptions, setWordOptions] = useState([])
+    // 현재 플레이어
+    const {currentPlayer, setCurrentPlayer, } = useGameRoomStore()
+    // 현재 플레이 여부
     const isMyTurn = currentPlayer?.username === username
+    console.log('isMyTurn: ', isMyTurn, ', currentPlayer?.username: ', currentPlayer?.username, ', username: ', username)
 
     // 게임 설정 변경 시
     const onConfigChange = (newOption) => {
@@ -51,20 +57,31 @@ const GameAreaContainer = ({ roomId, isRoomHost, players,connectedSocketIds }: P
     // host 게임 시작 버튼 클릭 시
     const onClickStartGame = () => {
         if (socket) {
-            socket.emit('start-game')
+            socket.emit('finish-config', roomId)
+        }
+    }
+
+    // 단어 선택지 중 선택 시
+    const onSelectWord = (selectedWord: string) => {
+        if (socket) {
+            socket.emit('select-word', { roomId, selectedWord })
         }
     }
 
     useEffect(() => {
         if (socket) {
             // 게임 시작 이벤트 시
-            socket.on('start-game', () => {
+            socket.on('finish-config', (data: {currentPlayer: Player}) => {
                 setGameStatus(GAME_STATUS.단어선택중)
+                setCurrentPlayer(data.currentPlayer)
+            })
+
+            socket.on('select-word', (data: {randomWords: string[]}) => {
+                setWordOptions(data.randomWords)
             })
 
             // 게임 설정 이벤트 시
             socket.on('change-room-config', (data: RoomConfig) => {
-                console.log('change-room-config', data)
                 setRoomConfig(data)
             })
         }
@@ -103,6 +120,9 @@ const GameAreaContainer = ({ roomId, isRoomHost, players,connectedSocketIds }: P
                     : null
             }
             {
+                gameStatus === GAME_STATUS.단어선택중? <WordSelector isCurrentPlayer={isMyTurn} words={wordOptions} onSelectWord={onSelectWord} />: null
+            }
+            {
                 (gameStatus === GAME_STATUS.게임중 && isMyTurn) ? <DrawingArea />: null
             }
             {/* 플레이어 비디오(음성, 캔버스) */}
@@ -111,16 +131,13 @@ const GameAreaContainer = ({ roomId, isRoomHost, players,connectedSocketIds }: P
                     .filter(player => player.username !== username)
                     .map(player =>
                         <video
+                            hidden={player.socketId !== currentPlayer?.socketId}
                             key={`${player.socketId}-video`}
                             id={`${player.socketId}-video`}
                             autoPlay
-                            // css={css({
-                            //     display: player.socketId === currentPlayer?.socketId ? 'block' : 'hidden',
-                            //     width: '100%',
-                            //     height: '100%',
-                            //     border: '1px solid black'
-                            // })}
-                        />)
+
+                        />
+                    )
             }
         </Center>
     )

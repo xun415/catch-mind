@@ -11,12 +11,14 @@ const DEFAULT_CONSTRAINS = {
 }
 
 let localStream;
+let localAudioStream;
 let localCanvasStream;
 
 export const setLocalAudioStream = (onSuccess, onFail) => {
     navigator.mediaDevices.getUserMedia(DEFAULT_CONSTRAINS).then(stream => {
         // const newStream = new MediaStream([stream.getAudioTracks()[0], localCanvasStream.getVideoTracks()[0]])
 
+        localAudioStream = stream
         localStream = stream
         onSuccess()
     }).catch(e => {
@@ -27,6 +29,8 @@ export const setLocalAudioStream = (onSuccess, onFail) => {
 
 export const setCanvasStream = (canvasStream: MediaStream, onSuccess?: () => void, onFail?: () => void) => {
     localCanvasStream = canvasStream
+    // const newStream = new MediaStream([localAudioStream.getAudioTracks()[0], canvasStream.getVideoTracks()[0]])
+    // localStream = newStream
 }
 
 export const prepareNewPeerConnection = (connUserSocketId: string, isRequester: boolean, onSignalData, onStream) => {

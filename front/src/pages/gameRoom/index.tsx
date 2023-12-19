@@ -11,6 +11,7 @@ import {useStreamContext} from "@contexts/stream";
 import {Player} from "../../types/data";
 import useUserStore from "../../stores/useUserStore";
 import {useNavigate} from "react-router-dom";
+import {useGameRoomStore} from "../../stores/useGameRoomStore";
 
 const GameRoomPage = () => {
     const { socket } = useSocketContext()
@@ -19,7 +20,8 @@ const GameRoomPage = () => {
     const isRoomHost = new URLSearchParams(useLocation().search).get('isHost') === 'true'
     const [roomId, setRoomId] = useState<string | undefined>(new URLSearchParams(useLocation().search).get('id')?? undefined)
     const { streamsRef } = useStreamContext()
-    const [players, setPlayers] = useState<Player[]>([])
+    // const [players, setPlayers] = useState<Player[]>([])
+    const {players, setPlayers} = useGameRoomStore()
     const [connectedSocketIds, setConnectedSocketIds] = useState<string[]>([])
 
     useEffect(() => {

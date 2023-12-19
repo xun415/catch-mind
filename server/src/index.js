@@ -6,12 +6,15 @@ const express = require('express')
 const http = require('http')
 const { v4: uuid } = require('uuid')
 const cors = require('cors')
+const dayjs = require('dayjs')
+const {CATCH_MIND_WORD_LIST} = require("./data/word");
 
 const PORT = process.env.PORT || 5002
 
 const app = express();
 
 const server = http.createServer(app)
+
 app.use(cors({
     credentials: true,
     origin: ['http://localhost:5173'],
@@ -103,23 +106,68 @@ io.on('connection', (socket) => {
         changeRoomSettingHandler(data)
     })
 
-    // 게임 시작 이벤트 시
-    socket.on('start-game', () => {
+    // 게임 설정 완료 시
+    socket.on('finish-config', (roomId) => {
+        console.log('[server] finish-config', socket.id)
         /**
          * todo
          * 채팅 이벤트 emit(선택중 등)
          * 방 라운드 정보 업데이트 및 진행 유저 지정
          */
+        // 참여하고자 하는 방 찾기
+        const roomIdx = rooms.findIndex(room => room.id === roomId)
+
+        const players = rooms[roomIdx].players
+
+        // 방 업데이트
+        const updatedRoom = {
+            ...rooms[roomIdx],
+            currentRound: 1,
+            currentPlayer: players[0],
+            sessions: []
+        }
+
+        rooms[roomIdx] = updatedRoom
+
+        // 유저들에게 방 정보 업데이트 알려주기
+        io.to(roomId).emit('finish-config', {
+            currentPlayer: players[0]
+        })
+
+        // 선택할 단어 목록
+        const randomWords = selectRandomWords(CATCH_MIND_WORD_LIST,[])
+
+        // 단어 선택 이벤트
+        socket.emit('select-word', {
+            randomWords
+        })
+
+    })
+
+    socket.on('start-game', () => {
+
     })
 
     // 진행 유저가 선택지 골랐을 시
-    socket.on('choose-question', (data) => {
+    socket.on('select-word', (data) => {
+        const { roomId, word } = data
         /**
          * todo
          * 유저가 고른 값을 현 라운드의 정답으로 저장하고,
          * 현 라운드 진행
          */
+        // 참여하고자 하는 방 찾기
+        const roomIdx = rooms.findIndex(room => room.id === roomId)
 
+        /** @type {Room} room */
+        const room = { ...rooms[roomIdx] }
+        room.sessions = [...room.sessions, {
+            startAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
+            endAt: null,
+            answer: word
+        }]
+
+        io.to(roomId).emit('game-start', { wordLength: word.length })
     })
 
     // 정답 확인 시
@@ -242,10 +290,6 @@ const joinRoomHandler = (data, socket) => {
 }
 
 const changeRoomSettingHandler = (data) => {
-    console.log('changeRoomSettingHandler',data)
-    const changedOption = {
-
-    }
     const { roomId, totalRound, maxPlayerNumber, timePerRound } = data
 
     // 참여하고자 하는 방 찾기
@@ -311,6 +355,21 @@ const initializeConnectionHandler = (data, socket) => {
     const initData = { connUserSocketId: socket.id }
     io.to(connUserSocketId).emit('conn-init', initData)
 }
+
+/**
+ *
+ * @param {string[]} excludes
+ * @param {number} selectCnt
+ *
+ * @return {string[]} randomWords
+ */
+const selectRandomWords = (wordList, excludes, selectCnt = 3, randomFunc = Math.random) => {
+    const excluded = wordList.filter(word => !excludes.includes(word));
+
+    return Array.from({ length: selectCnt }, () =>
+        excluded[Math.floor(randomFunc() * excluded.length)]
+    );
+};
 
 
 server.listen(PORT)
