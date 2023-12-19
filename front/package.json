@@ -25,7 +25,9 @@
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.7.2",
     "zustand": "^4.4.7",
-    "zustand-persist": "^0.4.0"
+    "zustand-persist": "^0.4.0",
+    "@react-buddy/ide-toolbox": "^2.4.0",
+    "@react-buddy/palette-chakra-ui": "^2.3.2"
   },
   "devDependencies": {
     "@types/node": "^20.9.2",

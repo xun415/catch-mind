@@ -10,9 +10,11 @@ import ChattingContainer from "../../containers/ChattingContainer";
 import {useStreamContext} from "@contexts/stream";
 import {Player} from "../../types/data";
 import useUserStore from "../../stores/useUserStore";
+import {useNavigate} from "react-router-dom";
 
 const GameRoomPage = () => {
     const { socket } = useSocketContext()
+    const navigate = useNavigate()
     const username = useUserStore(store => store.username)
     const isRoomHost = new URLSearchParams(useLocation().search).get('isHost') === 'true'
     const [roomId, setRoomId] = useState<string | undefined>(new URLSearchParams(useLocation().search).get('id')?? undefined)
@@ -30,10 +32,12 @@ const GameRoomPage = () => {
                     socket.emit('join-room', { username, roomId })
             }, () => {
                 alert('오디오 접근에 실패했습니다.')
+                navigate('/')
             })
 
             // 방 생성 성공 시
             socket.on('room-created', (data: {roomId: string}) => {
+                console.log('room-created', data)
                 const { roomId } = data
                 setRoomId(roomId)
             })
@@ -127,7 +131,7 @@ const GameRoomPage = () => {
                     <PlayerListContainer players={players}/>
                 </GridItem>
                 <GridItem gridArea={'canvas'}>
-                    <GameAreaContainer isRoomHost={isRoomHost} players={players} connectedSocketIds={connectedSocketIds}/>
+                    <GameAreaContainer roomId={roomId} isRoomHost={isRoomHost} players={players} connectedSocketIds={connectedSocketIds}/>
                 </GridItem>
                 <GridItem gridArea={'chatting'}>
                     <ChattingContainer />

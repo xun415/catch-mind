@@ -27,5 +27,5 @@ export type Room = RoomConfig & {
     // 현재 라운드
     currentRound: number
     // 현재 라운드 진행중인 플레이어
-    currentPlayer: string | null
+    currentPlayer: Player | null
 }

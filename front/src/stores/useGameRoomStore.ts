@@ -2,8 +2,7 @@ import {Player, Room, RoomConfig} from "../types/data";
 import {create} from "zustand";
 import {devtools} from "zustand/middleware";
 
-type UseGameRoomStore = {
-    room: Room
+type UseGameRoomStore = Room & {
     setRoomConfig: (newConfig: RoomConfig) => void
     setId: (id: string) => void
     setCurrentRound: (v: number) => void

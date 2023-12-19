@@ -7,7 +7,7 @@ let streams = []
 
 const DEFAULT_CONSTRAINS = {
     audio: true,
-    video: true
+    video: false
 }
 
 let localStream;
@@ -15,9 +15,9 @@ let localCanvasStream;
 
 export const setLocalAudioStream = (onSuccess, onFail) => {
     navigator.mediaDevices.getUserMedia(DEFAULT_CONSTRAINS).then(stream => {
-        const newStream = new MediaStream([stream.getAudioTracks()[0], localCanvasStream.getVideoTracks()[0]])
+        // const newStream = new MediaStream([stream.getAudioTracks()[0], localCanvasStream.getVideoTracks()[0]])
 
-        localStream = newStream
+        localStream = stream
         onSuccess()
     }).catch(e => {
         onFail(e)

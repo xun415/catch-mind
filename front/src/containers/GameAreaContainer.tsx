@@ -8,6 +8,7 @@ import {Center} from "@chakra-ui/react";
 import GameSetting from "@components/organisms/GameSetting";
 import {GAME_STATUS} from "../constant/game";
 import {useGameRoomStore} from "../stores/useGameRoomStore";
+import {css} from "@emotion/react";
 
 const initRoomConfig = {
     totalRound: 3,
@@ -15,14 +16,14 @@ const initRoomConfig = {
     timePerRound: 120
 }
 
-
-
 type Props = {
+    roomId: string
     isRoomHost: boolean
     players: Player[]
     connectedSocketIds: string[]
 }
-const GameAreaContainer = ({ isRoomHost, players,connectedSocketIds }: Props) => {
+
+const GameAreaContainer = ({ roomId, isRoomHost, players,connectedSocketIds }: Props) => {
     const { socket } = useSocketContext()
     const username = useUserStore(store => store.username)
     const { streamsRef } = useStreamContext()
@@ -30,18 +31,21 @@ const GameAreaContainer = ({ isRoomHost, players,connectedSocketIds }: Props) =>
     const [roomConfig, setRoomConfig] = useState(initRoomConfig)
     // 게임방 상태
     const [gameStatus, setGameStatus] = useState(GAME_STATUS.설정중)
+    const [currentPlayer] = useGameRoomStore(state => [state.currentPlayer])
+    const isMyTurn = currentPlayer?.username === username
 
     // 게임 설정 변경 시
     const onConfigChange = (newOption) => {
         if (socket) {
-            socket.emit('change-room-config', newOption)
-        }
+
         setRoomConfig(prev => {
-            const newConfig = { ...prev }
+            const newConfig = {roomId, ...prev}
             newConfig[newOption.key] = newOption.value
+            socket.emit('change-room-config', newConfig)
 
             return newConfig
         })
+        }
     }
 
     // host 게임 시작 버튼 클릭 시
@@ -60,6 +64,7 @@ const GameAreaContainer = ({ isRoomHost, players,connectedSocketIds }: Props) =>
 
             // 게임 설정 이벤트 시
             socket.on('change-room-config', (data: RoomConfig) => {
+                console.log('change-room-config', data)
                 setRoomConfig(data)
             })
         }
@@ -93,22 +98,30 @@ const GameAreaContainer = ({ isRoomHost, players,connectedSocketIds }: Props) =>
     return (
         <Center h={'full'}>
             {
-                players
-                    .filter(player => player.username !== username)
-                    .map(player =>
-                        <video key={`${player.socketId}-video`} id={`${player.socketId}-video`} autoPlay width={'800px'} height={'800px'}></video>)
-            }
-            {/*<DrawingArea />*/}
-            {
                 gameStatus === GAME_STATUS.설정중 ?
                     <GameSetting isRoomHost={isRoomHost} onOptionChange={onConfigChange} roomConfig={roomConfig} onClickStartGame={onClickStartGame}/>
                     : null
             }
             {
-                (gameStatus === GAME_STATUS.게임중)
+                (gameStatus === GAME_STATUS.게임중 && isMyTurn) ? <DrawingArea />: null
             }
-
-
+            {/* 플레이어 비디오(음성, 캔버스) */}
+            {
+                players
+                    .filter(player => player.username !== username)
+                    .map(player =>
+                        <video
+                            key={`${player.socketId}-video`}
+                            id={`${player.socketId}-video`}
+                            autoPlay
+                            // css={css({
+                            //     display: player.socketId === currentPlayer?.socketId ? 'block' : 'hidden',
+                            //     width: '100%',
+                            //     height: '100%',
+                            //     border: '1px solid black'
+                            // })}
+                        />)
+            }
         </Center>
     )
 }

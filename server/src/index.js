@@ -174,6 +174,7 @@ const createNewRoomHandler = (data, socket) => {
         timePerRound: 60,
         totalRound: 3,
     }
+    console.log('[server] room created')
 
     // join socket.io room
     socket.join(roomId)
@@ -241,21 +242,23 @@ const joinRoomHandler = (data, socket) => {
 }
 
 const changeRoomSettingHandler = (data) => {
+    console.log('changeRoomSettingHandler',data)
+    const changedOption = {
+
+    }
     const { roomId, totalRound, maxPlayerNumber, timePerRound } = data
 
     // 참여하고자 하는 방 찾기
     const roomIdx = rooms.findIndex(room => room.id === roomId)
 
     // 방 업데이트
-    const updatedRoom = {
-        ...rooms[roomIdx],
-        totalRound, maxPlayerNumber, timePerRound
-    }
+    const updatedRoom = { ...rooms[roomIdx] }
+    updatedRoom[data.key] = data.value
 
     rooms[roomIdx] = updatedRoom
 
     // 유저들에게 방 정보 업데이트 알려주기
-    io.to(roomId).emit('room-setting-update', { totalRound, maxPlayerNumber, timePerRound })
+    io.to(roomId).emit('change-room-config', { totalRound, maxPlayerNumber, timePerRound })
 }
 
 const disconnectHandler = (socket) => {
