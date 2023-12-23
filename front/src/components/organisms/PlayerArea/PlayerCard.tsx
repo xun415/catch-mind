@@ -8,11 +8,11 @@ type Props = {
 const PlayerCard = ({ username, score, rank }: Props) => {
 
     return (
-        <Card variant={'elevated'}>
-            <CardHeader>
+        <Card variant={'elevated'} p={{ base: 2, md: 4}}>
+            <CardHeader p={0}>
                 <Heading size='md'>{rank} {username}</Heading>
             </CardHeader>
-            <CardBody>
+            <CardBody p={0}>
                 <Text>Score: {score}</Text>
             </CardBody>
         </Card>

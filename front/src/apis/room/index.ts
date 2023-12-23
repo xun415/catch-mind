@@ -1,6 +1,6 @@
 import { instance } from "@apis/config/axios";
 import { AxiosResponse } from "axios";
-import {Room} from "../../types";
+import {Room} from "../../types/data";
 
 /**
  * 조회한 방의 참여 가능 여부를 조회합니다.

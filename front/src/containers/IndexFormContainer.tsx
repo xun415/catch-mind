@@ -6,10 +6,12 @@ import JoinRoomModal from "@components/organisms/JoinRoomModal";
 import {getIsRoomFull} from "@apis/room";
 import {AxiosError} from "axios";
 import useUserStore from "../stores/useUserStore";
+import {useGameRoomStore} from "../stores/useGameRoomStore";
 
 const IndexFormContainer = () => {
     let navigate = useNavigate()
     const setUsername = useUserStore(store => store.setUsername)
+    const { setId: setRoomId } = useGameRoomStore()
     const [isJoinRoomModalOpen, setIsJoinRoomModalOpen] = useState(false)
     const [joinRoomErrorMessage, setJoinRoomErrorMessage] = useState('')
 
@@ -31,6 +33,7 @@ const IndexFormContainer = () => {
                 setJoinRoomErrorMessage('최대 인원을 초과하였습니다.')
             } else {
                 navigate(`/gameRoom?id=${roomId}`)
+                setRoomId(roomId)
             }
         } catch (e) {
             if (e instanceof AxiosError && e.response.status === 404) {
@@ -52,7 +55,6 @@ const IndexFormContainer = () => {
 
     // 방 만들기 로직
     const onSubmitCreateRoom = (nickname: string) => {
-        console.log('[onSubmitCreateRoom]')
         setUsername(nickname)
         navigate('/gameRoom?isHost=true')
     }

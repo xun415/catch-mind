@@ -18,10 +18,9 @@ const GameRoomPage = () => {
     const navigate = useNavigate()
     const username = useUserStore(store => store.username)
     const isRoomHost = new URLSearchParams(useLocation().search).get('isHost') === 'true'
-    const [roomId, setRoomId] = useState<string | undefined>(new URLSearchParams(useLocation().search).get('id')?? undefined)
     const { streamsRef } = useStreamContext()
     // const [players, setPlayers] = useState<Player[]>([])
-    const {players, setPlayers} = useGameRoomStore()
+    const {players, setPlayers, setId: setRoomId, id: roomId} = useGameRoomStore()
     const [connectedSocketIds, setConnectedSocketIds] = useState<string[]>([])
 
     useEffect(() => {
@@ -39,12 +38,9 @@ const GameRoomPage = () => {
 
             // 방 생성 성공 시
             socket.on('room-created', (data: {roomId: string}) => {
-                console.log('room-created', data)
                 const { roomId } = data
                 setRoomId(roomId)
             })
-
-
 
             socket.on('conn-signal', data => {
                 webRTCHandler.handleSignalingData(data)
@@ -127,7 +123,7 @@ const GameRoomPage = () => {
                 }}
             >
                 <GridItem gridArea={'bar'}>
-                    <GameBarContainer roomId={roomId} />
+                    <GameBarContainer />
                 </GridItem>
                 <GridItem gridArea={'playerList'}>
                     <PlayerListContainer players={players}/>

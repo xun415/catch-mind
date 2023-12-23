@@ -144,13 +144,17 @@ io.on('connection', (socket) => {
 
     })
 
-    socket.on('start-game', () => {
+    socket.on('start-game', (data) => {
+        const {roomId} = data
+        const roomIdx = rooms.findIndex(room => room.id === roomId)
 
+        // 방 업데이트
+        const updatedRoom = { ...rooms[roomIdx] }
     })
 
     // 진행 유저가 선택지 골랐을 시
     socket.on('select-word', (data) => {
-        const { roomId, word } = data
+        const { roomId, selectedWord } = data
         /**
          * todo
          * 유저가 고른 값을 현 라운드의 정답으로 저장하고,
@@ -164,10 +168,15 @@ io.on('connection', (socket) => {
         room.sessions = [...room.sessions, {
             startAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             endAt: null,
-            answer: word
+            answer: selectedWord
         }]
 
-        io.to(roomId).emit('game-start', { wordLength: word.length })
+        io.to(roomId).emit('game-start', { wordLength: selectedWord.length })
+
+        console.log('room.timePerRound: ', room.timePerRound)
+        setTimeout(() => {
+            io.to(roomId).emit('game-session-end' )
+        }, Number(room.timePerRound * 1000))
     })
 
     // 정답 확인 시
@@ -219,7 +228,7 @@ const createNewRoomHandler = (data, socket) => {
         currentPlayer: null,
         // config
         maxPlayerNumber: 4,
-        timePerRound: 60,
+        timePerRound: 120,
         totalRound: 3,
     }
     console.log('[server] room created')
@@ -290,18 +299,20 @@ const joinRoomHandler = (data, socket) => {
 }
 
 const changeRoomSettingHandler = (data) => {
-    const { roomId, totalRound, maxPlayerNumber, timePerRound } = data
-
+    const { roomId, ...roomConfig } = data
     // 참여하고자 하는 방 찾기
     const roomIdx = rooms.findIndex(room => room.id === roomId)
 
-    // 방 업데이트
-    const updatedRoom = { ...rooms[roomIdx] }
-    updatedRoom[data.key] = data.value
+    /**
+     * @type {Room} updatedRoom
+     */
+    const updatedRoom = { ...rooms[roomIdx], ...roomConfig }
 
-    rooms[roomIdx] = updatedRoom
+    // 방 업데이트
+    rooms[roomIdx] = { ...updatedRoom }
 
     // 유저들에게 방 정보 업데이트 알려주기
+    const { totalRound, maxPlayerNumber, timePerRound } = updatedRoom
     io.to(roomId).emit('change-room-config', { totalRound, maxPlayerNumber, timePerRound })
 }
 

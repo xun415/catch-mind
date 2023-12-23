@@ -4,12 +4,14 @@ import {useStreamContext} from "@contexts/stream";
 import {Player, RoomConfig} from "../types/data";
 import useUserStore from "../stores/useUserStore";
 import DrawingArea from "@components/organisms/DrawingArea";
-import {Center} from "@chakra-ui/react";
+import {Center, VStack} from "@chakra-ui/react";
 import GameSetting from "@components/organisms/GameSetting";
 import {GAME_STATUS} from "../constant/game";
 import {useGameRoomStore} from "../stores/useGameRoomStore";
 import {css} from "@emotion/react";
 import WordSelector from "@components/organisms/WordSelector";
+import GameBar from "@components/organisms/GameBar";
+import {room} from "@apis/room";
 
 const initRoomConfig = {
     totalRound: 3,
@@ -24,7 +26,7 @@ type Props = {
     connectedSocketIds: string[]
 }
 
-const GameAreaContainer = ({ roomId, isRoomHost, players,connectedSocketIds }: Props) => {
+const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: Props) => {
     const { socket } = useSocketContext()
     const username = useUserStore(store => store.username)
     const { streamsRef } = useStreamContext()
@@ -35,7 +37,7 @@ const GameAreaContainer = ({ roomId, isRoomHost, players,connectedSocketIds }: P
     // 단어 선택 옵션 (전역 필요성 있음)
     const [wordOptions, setWordOptions] = useState([])
     // 현재 플레이어
-    const {currentPlayer, setCurrentPlayer, } = useGameRoomStore()
+    const {currentPlayer, setCurrentPlayer } = useGameRoomStore()
     // 현재 플레이 여부
     const isMyTurn = currentPlayer?.username === username
     console.log('isMyTurn: ', isMyTurn, ', currentPlayer?.username: ', currentPlayer?.username, ', username: ', username)
@@ -56,6 +58,10 @@ const GameAreaContainer = ({ roomId, isRoomHost, players,connectedSocketIds }: P
 
     // host 게임 시작 버튼 클릭 시
     const onClickStartGame = () => {
+        if (players?.length < 2) {
+            alert('참가 인원은 2명 이상이어야 합니다.')
+            return;
+        }
         if (socket) {
             socket.emit('finish-config', roomId)
         }
@@ -68,6 +74,22 @@ const GameAreaContainer = ({ roomId, isRoomHost, players,connectedSocketIds }: P
         }
     }
 
+    // 초기 입장 시 방 설정 동기화
+    useEffect(() => {
+        if (isRoomHost || !roomId) return
+        try {
+            room(roomId).then((response) => {
+                console.log(response.data.room)
+                const { maxPlayerNumber, totalRound, timePerRound } = response.data.room
+                console.log('[setRoomConfig] ', maxPlayerNumber, totalRound, timePerRound)
+                setRoomConfig({maxPlayerNumber, totalRound, timePerRound})
+            }).catch(e => e)
+        } catch (e) {
+
+        }
+
+    }, [])
+    // socket event 핸들러 등록
     useEffect(() => {
         if (socket) {
             // 게임 시작 이벤트 시
@@ -84,9 +106,24 @@ const GameAreaContainer = ({ roomId, isRoomHost, players,connectedSocketIds }: P
             socket.on('change-room-config', (data: RoomConfig) => {
                 setRoomConfig(data)
             })
+
+            // 게임 시작 시 (단어 선택 완료 후)
+            socket.on('game-start', data => {
+                setGameStatus(GAME_STATUS.게임중)
+                /**
+                 * todo
+                 * game 바에 카운터, 단어(진행자), 단어수 표시
+                 */
+            })
+
+            socket.on('game-session-end', () => {
+                console.log('[game-session-end]')
+            })
         }
     }, [])
 
+
+    // video src에 wetRTC stream 할당
     useEffect(() => {
         connectedSocketIds.forEach(socketId => {
             const mySocketId = players.find(player => player.username === username).socketId
