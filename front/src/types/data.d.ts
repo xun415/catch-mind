@@ -29,3 +29,9 @@ export type Room = RoomConfig & {
     // 현재 라운드 진행중인 플레이어
     currentPlayer: Player | null
 }
+
+export type Message = {
+    type: 'guess' | 'notice',
+    content: string,
+    senderName?: string
+}

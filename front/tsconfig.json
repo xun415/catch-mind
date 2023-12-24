@@ -37,6 +37,10 @@
     "allowSyntheticDefaultImports": true,
     "jsxImportSource": "@emotion/react"
   },
-  "include": ["src"],
+  "include": ["src",
+    "**/*.ts",
+    "**/*.css.ts",
+    "**/*.tsx"
+  ],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

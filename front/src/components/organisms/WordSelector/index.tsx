@@ -1,5 +1,5 @@
 import {Button, Center, Flex, Text} from "@chakra-ui/react";
-import {color} from "../../../constant/color";
+import {color} from "@assets/styles/color";
 
 type Props = {
     words: string[]

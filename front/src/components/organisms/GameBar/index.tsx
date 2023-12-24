@@ -15,7 +15,7 @@ const GameBar = ({ currentRound }: Props) => {
         <Center h={'60px'}  w={'100%'}>
             <Flex w={'90%'} h={'100%'} borderRadius={'0 0 20px 20px'} border={'1px solid black'} borderTop={0} flexDirection={'column'} alignItems={'center'}>
                 <Flex alignItems={'center'}>
-                    <Text>Game Bar</Text>
+                    <Text>{}</Text>
                 </Flex>
             </Flex>
         </Center>

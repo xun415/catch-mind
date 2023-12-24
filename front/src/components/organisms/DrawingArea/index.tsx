@@ -10,7 +10,7 @@ import {
     VStack
 } from "@chakra-ui/react";
 import {useEffect, useRef, useState} from "react";
-import {color} from "../../../constant/color";
+import {color} from "@assets/styles/color";
 import {setCanvasStream} from "../../../utils/webRTCHandler";
 import {css} from "@emotion/react";
 

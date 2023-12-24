@@ -133,6 +133,7 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('finish-config', {
             currentPlayer: players[0]
         })
+        messageHandler(roomId, `${players[0].username}님이 단어를 고르고 있습니다.`)
 
         // 선택할 단어 목록
         const randomWords = selectRandomWords(CATCH_MIND_WORD_LIST,[])
@@ -171,24 +172,66 @@ io.on('connection', (socket) => {
             answer: selectedWord
         }]
 
+        messageHandler(roomId, '단어 선택이 완료되었습니다. 게임을 시작합니다.')
         io.to(roomId).emit('game-start', { wordLength: selectedWord.length })
 
-        console.log('room.timePerRound: ', room.timePerRound)
         setTimeout(() => {
-            io.to(roomId).emit('game-session-end' )
+            /**
+             * todo
+             * 이미 정답을 맞춰 다음 게임으로 진행됬을 경우 무시
+             */
+            io.to(roomId).emit('game-session-end')
+            messageHandler(roomId, `게임 종료. 정답은 ${selectedWord} 이었습니다.`)
         }, Number(room.timePerRound * 1000))
     })
 
     // 정답 확인 시
     socket.on('guess-answer', data => {
+        const { roomId, answer } = data
         /**
          * todo
          * 채팅 이벤트 emit(전체 유저 채팅 목록에 정답 내역 보이게 함)
          * 정답 확인
          * 정답 시 -> 유저정보(스코어) 업데이트, 방 라운드 정보 업데이트 후 다음 라운드 유저 진행
          */
+
+        // 방, 현재 진행중 게임 세션 찾기
+        const roomIdx = rooms.findIndex(room => room.id === roomId)
+        const room = rooms[roomIdx]
+        const currentSessionIdx = room.sessions.length - 1
+        const currentSession = room.sessions[currentSessionIdx]
+
+        // 유저 찾기
+        const user = room.players.find(p => p.socketId === socket.id)
+
+        // 정답 확인
+        const isCorrectAnswer = currentSession.answer === answer
+        if (isCorrectAnswer) {
+            /**
+             * todo
+             * 게임 세션 종료 알림
+             * 유저 점수 정보 업데이트, 게임룸 정보 업데이트 (현재플레이어, 새로운 세션 추가 등)
+             */
+            io.to(roomId).emit('game-session-end')
+
+            messageHandler(roomId, `${user.username}님이 정답을 맞췄습니다.`)
+        } else {
+            messageHandler(roomId, answer, 'chatting', user.username)
+        }
     })
 })
+
+/**
+ * 게임룸에 메세지를 전달합니다.
+ *
+ * @param roomId
+ * @param content 표시할 내용
+ * @param {'notice' | 'chatting'} type
+ * @param {string | undefined} senderName
+ */
+const messageHandler = (roomId, content, type = 'notice', senderName) => {
+    io.to(roomId).emit('message', { content, type, senderName })
+}
 
 
 // 게임 방 생성
@@ -296,6 +339,7 @@ const joinRoomHandler = (data, socket) => {
 
     // 룸에 있는 유저들에게 유저 업데이트
     io.to(roomId).emit('player-update', { players: room.players })
+    messageHandler(roomId, `${username}님이 입장하셨습니다.`)
 }
 
 const changeRoomSettingHandler = (data) => {
@@ -339,6 +383,7 @@ const disconnectHandler = (socket) => {
             io.to(room.id).emit('player-update', {
                 players: room.players
             })
+            messageHandler(room.id, `${user.username}님이 방을 나갔습니다.`)
         } else {
             // 유저 없을 시 방 제거
             rooms = rooms.filter(r => r.id !== room.id)
