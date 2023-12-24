@@ -6,7 +6,7 @@ type UseGameRoomStore = Room & {
     setRoomConfig: (newConfig: RoomConfig) => void
     setId: (id: string) => void
     setCurrentRound: (v: number) => void
-    setCurrentPlayer: (player: Player) => void
+    setdrawPlayer: (player: Player) => void
     setPlayers: (players: Player[]) => void
 }
 
@@ -18,7 +18,7 @@ const initStatus: Room = {
     maxPlayerNumber: 4,
     timePerRound: 180,
     currentRound: 0,
-    currentPlayer: null
+    drawPlayer: null
 }
 
 export const useGameRoomStore = create<UseGameRoomStore>()(
@@ -43,11 +43,11 @@ export const useGameRoomStore = create<UseGameRoomStore>()(
                     currentRound
                 }))
             },
-            setCurrentPlayer: (currentPlayer) => {
-                console.log('store setCurrentPlayer', currentPlayer)
+            setdrawPlayer: (drawPlayer) => {
+                console.log('store setdrawPlayer', drawPlayer)
                 set(prev => ({
                     ...prev,
-                    currentPlayer
+                    drawPlayer
                 }))
             },
             setPlayers: (players) => {

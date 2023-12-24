@@ -3,14 +3,14 @@ import {color} from "@assets/styles/color";
 
 type Props = {
     words: string[]
-    isCurrentPlayer: boolean
+    isdrawPlayer: boolean
     onSelectWord: (word: string) => void
 }
-const WordSelector = ({ words, isCurrentPlayer, onSelectWord }: Props) => {
+const WordSelector = ({ words, isdrawPlayer, onSelectWord }: Props) => {
 
     return <Center bg={color.회색} w={'100%'} h={'100%'}>
         {
-            isCurrentPlayer?
+            isdrawPlayer?
                 <Flex gap={4}>
                     <>
                     {

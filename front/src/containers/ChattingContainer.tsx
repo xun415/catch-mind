@@ -1,4 +1,4 @@
-import {Box, VStack} from "@chakra-ui/react";
+import {Box, Button, Flex, Input, VStack} from "@chakra-ui/react";
 import {useSocketContext} from "@contexts/socket";
 import {useEffect, useState} from "react";
 import {Message} from "../types/data";
@@ -7,24 +7,17 @@ import useUserStore from "../stores/useUserStore";
 
 const ChattingContainer = () => {
     const { socket } = useSocketContext()
-    const { username } = useUserStore()
     const { id: roomId } = useGameRoomStore()
     const [messages, setMessages] = useState<Message[]>([])
+    const [userInput, setUserInput] = useState('')
 
     const onSendMessage = (message: string) => {
-        const newMessage: Message = {
-            type: 'guess',
-            senderName: username,
-            content: message
-        }
-
         if (socket) {
             socket.emit('guess-answer', {
                 roomId,
-                ...newMessage
+                answer: message
             })
         }
-        setMessages(prev => [...prev, newMessage])
     }
 
     useEffect(() => {
@@ -36,15 +29,22 @@ const ChattingContainer = () => {
         }
     , [])
     return (
-        <VStack borderRadius={'1px solid black'} w={'100%'} h={'100%'}>
-            <>
+        <Flex flexDir={'column'} justifyContent={'space-between'} p={2} borderRadius={'1px solid black'} w={'100%'} h={'100%'}>
+            <Box>
             {
                 messages.map((message) => (
                     <span>{message.content}</span>
                 ))
             }
-            </>
-        </VStack>
+            </Box>
+            <Flex gap={1}>
+                <Input value={userInput} onChange={event => setUserInput(event.target.value)}></Input>
+                <Button onClick={() => {
+                    onSendMessage(userInput)
+                    setUserInput('')
+                }}>제출</Button>
+            </Flex>
+        </Flex>
     )
 }
 

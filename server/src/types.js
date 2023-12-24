@@ -7,8 +7,7 @@
  */
 
 /**
- * @typedef Player
- * @extends User
+ * @typedef {User} Player
  *
  * @property {number} score 점수
  * @property {number} playedRound 진행한 라운드 수
@@ -17,6 +16,8 @@
 /**
  * @typedef GameSession 게임 세션(라운드 > 각 문제 세션)
  *
+ * @property {number} round 현 라운드
+ * @property {Player} drawPlayer
  * @property {string} answer 정답
  * @property {string} startAt 시작 시간
  * @property {string | null} endAt 종료 시간

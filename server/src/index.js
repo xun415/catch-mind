@@ -123,7 +123,7 @@ io.on('connection', (socket) => {
         const updatedRoom = {
             ...rooms[roomIdx],
             currentRound: 1,
-            currentPlayer: players[0],
+            drawPlayer: players[0],
             sessions: []
         }
 
@@ -131,7 +131,7 @@ io.on('connection', (socket) => {
 
         // 유저들에게 방 정보 업데이트 알려주기
         io.to(roomId).emit('finish-config', {
-            currentPlayer: players[0]
+            drawPlayer: players[0]
         })
         messageHandler(roomId, `${players[0].username}님이 단어를 고르고 있습니다.`)
 
@@ -169,24 +169,41 @@ io.on('connection', (socket) => {
         room.sessions = [...room.sessions, {
             startAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             endAt: null,
-            answer: selectedWord
+            answer: selectedWord,
+            round: room.currentRound,
+            drawPlayer: { ...room.drawPlayer }
         }]
+
+        // room update 반영
+        rooms[roomIdx] = { ...room }
+        console.log('room.sessions: ', room.sessions)
+        const gameSessionLength = room.sessions.length
 
         messageHandler(roomId, '단어 선택이 완료되었습니다. 게임을 시작합니다.')
         io.to(roomId).emit('game-start', { wordLength: selectedWord.length })
 
-        setTimeout(() => {
-            /**
-             * todo
-             * 이미 정답을 맞춰 다음 게임으로 진행됬을 경우 무시
-             */
-            io.to(roomId).emit('game-session-end')
-            messageHandler(roomId, `게임 종료. 정답은 ${selectedWord} 이었습니다.`)
-        }, Number(room.timePerRound * 1000))
+        (function () {
+            setTimeout(() => {
+                // 같은 게임 세션 진행중 여부 확인
+                const isSameSession = gameSessionLength === rooms[roomIdx].sessions.length
+                // 이미 정답을 맞춰 다음 게임으로 진행됬을 경우 무시
+                if (!isSameSession) {
+                    return;
+                }
+                io.to(roomId).emit('game-session-end')
+                messageHandler(roomId, `시간 초과. 정답은 ${selectedWord} 이었습니다.`)
+
+                /**
+                 * todo
+                 * 정답 확인 로직
+                 */
+            }, Number(room.timePerRound * 1000))
+        })()
     })
 
     // 정답 확인 시
     socket.on('guess-answer', data => {
+        console.log('[guess-answer] data: ', data)
         const { roomId, answer } = data
         /**
          * todo
@@ -199,25 +216,88 @@ io.on('connection', (socket) => {
         const roomIdx = rooms.findIndex(room => room.id === roomId)
         const room = rooms[roomIdx]
         const currentSessionIdx = room.sessions.length - 1
+
         const currentSession = room.sessions[currentSessionIdx]
 
         // 유저 찾기
-        const user = room.players.find(p => p.socketId === socket.id)
+        const userIdx = room.players.findIndex(p => p.socketId === socket.id)
+        const user = room.players[userIdx]
 
         // 정답 확인
         const isCorrectAnswer = currentSession.answer === answer
-        if (isCorrectAnswer) {
-            /**
-             * todo
-             * 게임 세션 종료 알림
-             * 유저 점수 정보 업데이트, 게임룸 정보 업데이트 (현재플레이어, 새로운 세션 추가 등)
-             */
-            io.to(roomId).emit('game-session-end')
 
-            messageHandler(roomId, `${user.username}님이 정답을 맞췄습니다.`)
-        } else {
+        if (!isCorrectAnswer) {
             messageHandler(roomId, answer, 'chatting', user.username)
+            return;
         }
+
+        // 게임 세션 종료 알림
+        io.to(roomId).emit('game-session-end')
+        messageHandler(roomId, `${user.username}님이 정답을 맞췄습니다.`)
+
+        // 유저 점수 업데이트 (맞춘 플레이어에게 남은 시간 초 * 10점, 그린 플리이어에게 남은 시간 초 * 5점)
+        const timePassed = dayjs(currentSession.startAt).diff(dayjs(), 'seconds')
+        const leftTime = room.timePerRound - timePassed
+
+        user.score += (leftTime * 10)
+        room.players[userIdx] = { ...user }
+
+        /** @type {Player} drawPlayer */
+        const drawPlayer = { ...room.drawPlayer }
+        drawPlayer.score += (leftTime * 5)
+        const drawPlayerIdx = room.players.findIndex(p => p.socketId === drawPlayer.socketId)
+        room.players[drawPlayerIdx] = {...drawPlayer}
+
+        io.to(roomId).emit('player-update', { players: room.players })
+
+        rooms[roomIdx] = { ...room }
+
+        // 게임 종료 조건 확인 (현재 라운드가 마지막 라운드이고, 현재 참여자가 현 라운드의 세션을 한번씩 진행 했을 경우)
+        const isRoomLastRound = room.currentRound === room.totalRound
+
+        // 현 라운드의 세션 진행한 플레이어 목록
+        const sessionDonePlayerIds = room.sessions
+            // 현재 라운드 세션 목록
+            .filter(session => session.round === room.currentRound)
+            // 플레이어들 목록
+            .map(session => session.drawPlayer.id)
+
+        // 방의 참여자가 현 라운드의 세션을 한번씩 진행했는지 여부
+        const isEveryPlayersDoneSession = room.players
+            .map(p => p.id)
+            .every(id => sessionDonePlayerIds.includes(id))
+
+        if (isRoomLastRound && isEveryPlayersDoneSession) {
+            // 게임 종료
+            io.to(roomId).emit('game-end', room)
+            messageHandler(roomId, '게임이 종료되었습니다.')
+            return;
+        }
+
+        // 게임 미종료 (라운드 업데이트, 단어 선택 진행)
+        if (isEveryPlayersDoneSession) {
+            room.currentRound += 1
+        }
+
+        // 선택할 단어 목록
+        const randomWords = selectRandomWords(CATCH_MIND_WORD_LIST, room.sessions.map(s => s.answer))
+
+        // 다음 플레이어 선정
+        const nextDrawer = isEveryPlayersDoneSession?
+            room.players[0]
+            :
+            room.players.filter(player => !sessionDonePlayerIds.includes(player.id))[0]
+
+        room.currentPlayer = nextDrawer
+
+        // 방 업데이트
+        rooms[roomIdx] = { ...room }
+
+        // 단어 선택 이벤트
+        io.to(nextDrawer.socketId).emit('select-word', {
+            randomWords
+        })
+        messageHandler(roomId, `${nextDrawer.username}님이 단어를 선택중입니다.`)
     })
 })
 
@@ -268,7 +348,7 @@ const createNewRoomHandler = (data, socket) => {
             }
         ],
         currentRound: 0,
-        currentPlayer: null,
+        drawPlayer: null,
         // config
         maxPlayerNumber: 4,
         timePerRound: 120,

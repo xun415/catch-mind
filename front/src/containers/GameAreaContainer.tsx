@@ -37,11 +37,10 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
     // 단어 선택 옵션 (전역 필요성 있음)
     const [wordOptions, setWordOptions] = useState([])
     // 현재 플레이어
-    const {currentPlayer, setCurrentPlayer } = useGameRoomStore()
+    const {drawPlayer, setdrawPlayer } = useGameRoomStore()
     // 현재 플레이 여부
-    const isMyTurn = currentPlayer?.username === username
-    console.log('isMyTurn: ', isMyTurn, ', currentPlayer?.username: ', currentPlayer?.username, ', username: ', username)
-
+    const isMyTurn = drawPlayer?.username === username
+    
     // 게임 설정 변경 시
     const onConfigChange = (newOption) => {
         if (socket) {
@@ -93,9 +92,9 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
     useEffect(() => {
         if (socket) {
             // 게임 시작 이벤트 시
-            socket.on('finish-config', (data: {currentPlayer: Player}) => {
+            socket.on('finish-config', (data: {drawPlayer: Player}) => {
                 setGameStatus(GAME_STATUS.단어선택중)
-                setCurrentPlayer(data.currentPlayer)
+                setdrawPlayer(data.drawPlayer)
             })
 
             socket.on('select-word', (data: {randomWords: string[]}) => {
@@ -157,7 +156,7 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
                     : null
             }
             {
-                gameStatus === GAME_STATUS.단어선택중? <WordSelector isCurrentPlayer={isMyTurn} words={wordOptions} onSelectWord={onSelectWord} />: null
+                gameStatus === GAME_STATUS.단어선택중? <WordSelector isdrawPlayer={isMyTurn} words={wordOptions} onSelectWord={onSelectWord} />: null
             }
             {
                 (gameStatus === GAME_STATUS.게임중 && isMyTurn) ? <DrawingArea />: null
@@ -168,7 +167,7 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
                     .filter(player => player.username !== username)
                     .map(player =>
                         <video
-                            hidden={player.socketId !== currentPlayer?.socketId}
+                            hidden={player.socketId !== drawPlayer?.socketId}
                             key={`${player.socketId}-video`}
                             id={`${player.socketId}-video`}
                             autoPlay
