@@ -11,7 +11,7 @@ import {
 } from "@chakra-ui/react";
 import {useEffect, useRef, useState} from "react";
 import {COLOR} from "@assets/styles/color.css";
-import {setCanvasStream} from "../../../utils/webRTCHandler";
+import {addCanvasStream} from "../../../utils/webRTCHandler";
 import {css} from "@emotion/react";
 
 const DEFAULT_LINE_WIDTH = 5
@@ -75,20 +75,22 @@ const DrawingArea = () => {
 
     useEffect(() => {
         const canvas = canvasRef.current
-        canvas.width = 800
-        canvas.height = 800
-
-        const ctx = canvas.getContext('2d')
-        ctx.lineWidth = 5
-        ctx.strokeStyle = '#000000'
-        ctx.fillStyle = COLOR.drawColor.white
-        ctx.fillRect(0,0,800, 800)
-        setCtx(ctx)
-        setCanvasStream(canvas.captureStream(25))
-
-        return () => {
+        if (canvas) {
             resetCanvas()
+
+            canvas.width = 800
+            canvas.height = 800
+
+            const ctx = canvas.getContext('2d')
+            ctx.lineWidth = 5
+            ctx.strokeStyle = '#000000'
+            ctx.fillStyle = COLOR.drawColor.white
+            ctx.fillRect(0,0,800, 800)
+            setCtx(ctx)
+            addCanvasStream(canvas.captureStream(25))
         }
+
+
     }, [])
 
     return (

@@ -11,14 +11,14 @@ const DEFAULT_CONSTRAINS = {
 }
 
 let localStream;
-let localAudioStream;
-let localCanvasStream;
+let prevAudioStream;
+let prevCanvasStream;
 
 export const setLocalAudioStream = (onSuccess, onFail) => {
     navigator.mediaDevices.getUserMedia(DEFAULT_CONSTRAINS).then(stream => {
         // const newStream = new MediaStream([stream.getAudioTracks()[0], localCanvasStream.getVideoTracks()[0]])
 
-        localAudioStream = stream
+        prevAudioStream = stream
         localStream = stream
         onSuccess()
     }).catch(e => {
@@ -27,10 +27,24 @@ export const setLocalAudioStream = (onSuccess, onFail) => {
 }
 
 
-export const setCanvasStream = (canvasStream: MediaStream, onSuccess?: () => void, onFail?: () => void) => {
-    localCanvasStream = canvasStream
-    // const newStream = new MediaStream([localAudioStream.getAudioTracks()[0], canvasStream.getVideoTracks()[0]])
-    // localStream = newStream
+export const addCanvasStream = (canvasStream: MediaStream, onSuccess?: () => void, onFail?: () => void) => {
+    for (let peerSocketId in peers) {
+        const peer = peers[peerSocketId]
+
+        // 기존 스트림
+        const peerStream = peer.streams[0]
+
+        const newCanvasVideoTrack = canvasStream.getVideoTracks()[0]
+
+        if (!prevCanvasStream) {
+            prevCanvasStream = canvasStream
+
+            peer.addTrack(newCanvasVideoTrack, peerStream)
+        } else {
+            peer.replaceTrack(prevCanvasStream.getVideoTracks()[0], newCanvasVideoTrack, peerStream)
+            prevCanvasStream = canvasStream
+        }
+    }
 }
 
 export const prepareNewPeerConnection = (connUserSocketId: string, isRequester: boolean, onSignalData, onStream) => {

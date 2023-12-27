@@ -44,7 +44,6 @@ export const useGameRoomStore = create<UseGameRoomStore>()(
                 }))
             },
             setDrawPlayer: (drawPlayer) => {
-                console.log('store setdrawPlayer', drawPlayer)
                 set(prev => ({
                     ...prev,
                     drawPlayer

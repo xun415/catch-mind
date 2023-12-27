@@ -123,6 +123,14 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
         }
     }, [])
 
+    useEffect(() => {
+        console.log('drawPlayer: ', drawPlayer)
+    }, [drawPlayer])
+
+    useEffect(() => {
+        console.log('isMyTurn: ', isMyTurn)
+    }, [isMyTurn])
+
 
     // video src에 wetRTC stream 할당
     useEffect(() => {
@@ -130,7 +138,9 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
             const mySocketId = players.find(player => player.username === username).socketId
             if (socketId !== mySocketId) {
                 const videoEL = document.getElementById(`${socketId}-video`) as HTMLVideoElement
-                videoEL.srcObject = streamsRef.current![socketId]
+                if (streamsRef.current) {
+                    videoEL.srcObject = streamsRef.current[socketId]
+                }
                 videoEL.autoplay = true
             }
 
@@ -169,6 +179,8 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
                     .filter(player => player.username !== username)
                     .map(player =>
                         <video
+                            width={'400px'}
+                            height={'400px'}
                             hidden={player.socketId !== drawPlayer?.socketId}
                             key={`${player.socketId}-video`}
                             id={`${player.socketId}-video`}

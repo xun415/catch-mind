@@ -181,7 +181,7 @@ io.on('connection', (socket) => {
         function checkAnswer () {
             setTimeout(() => {
                 // 같은 게임 세션 진행중 여부 확인
-                const isSameSession = gameSessionLength === rooms[roomIdx].sessions.length
+                const isSameSession = gameSessionLength === rooms[roomIdx]?.sessions?.length
                 // 이미 정답을 맞춰 다음 게임으로 진행됬을 경우 무시
                 if (!isSameSession) {
                     return;
@@ -249,6 +249,10 @@ io.on('connection', (socket) => {
 
 const gameSessionFinishHandler = (roomId) => {
     const room = findRoomById(rooms, roomId)
+    if (!room) {
+        // 방 사라졌을 경우 대비
+        return;
+    }
     // 게임 종료 조건 확인 (현재 라운드가 마지막 라운드이고, 현재 참여자가 현 라운드의 세션을 한번씩 진행 했을 경우)
     const isRoomLastRound = room.currentRound === room.totalRound
 
