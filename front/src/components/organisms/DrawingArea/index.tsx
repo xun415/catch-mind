@@ -10,7 +10,7 @@ import {
     VStack
 } from "@chakra-ui/react";
 import {useEffect, useRef, useState} from "react";
-import {color} from "@assets/styles/color";
+import {COLOR} from "@assets/styles/color.css";
 import {setCanvasStream} from "../../../utils/webRTCHandler";
 import {css} from "@emotion/react";
 
@@ -21,7 +21,7 @@ const DrawingArea = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null)
     const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null)
     const [isDrawing, setIsDrawing] = useState(false)
-    const [drawColor, setDrawColor] = useState(color.검정)
+    const [drawColor, setDrawColor] = useState(COLOR.drawColor.black)
 
 
     const onChangeColor = (newColor: string) => {
@@ -62,14 +62,14 @@ const DrawingArea = () => {
 
     const onClickErase = () => {
         const ctx = canvasRef.current.getContext('2d')
-        ctx.strokeStyle = color.흰색
+        ctx.strokeStyle = COLOR.drawColor.white
         setCtx(ctx)
-        setDrawColor(color.흰색)
+        setDrawColor(COLOR.drawColor.white)
     }
 
     const resetCanvas = () => {
         const ctx = canvasRef.current.getContext('2d')
-        ctx.fillStyle = color.흰색
+        ctx.fillStyle = COLOR.drawColor.white
         ctx.fillRect(0,0,800, 800)
     }
 
@@ -81,7 +81,7 @@ const DrawingArea = () => {
         const ctx = canvas.getContext('2d')
         ctx.lineWidth = 5
         ctx.strokeStyle = '#000000'
-        ctx.fillStyle = color.흰색
+        ctx.fillStyle = COLOR.drawColor.white
         ctx.fillRect(0,0,800, 800)
         setCtx(ctx)
         setCanvasStream(canvas.captureStream(25))
@@ -104,9 +104,9 @@ const DrawingArea = () => {
             <HStack >
                 {/* 색 선택 */}
                 <input type="color" onChange={event => onChangeColor(event.target.value)} value={drawColor}/>
-                <Circle bg={color.검정} size={8} onClick={() => onChangeColor(color.검정)}></Circle>
-                <Circle bg={color.빨강} size={8} onClick={() => onChangeColor(color.빨강)}></Circle>
-                <Circle bg={color.파랑} size={8} onClick={() => onChangeColor(color.파랑)}></Circle>
+                <Circle bg={COLOR.drawColor.black} size={8} onClick={() => onChangeColor(COLOR.drawColor.black)}></Circle>
+                <Circle bg={COLOR.drawColor.red} size={8} onClick={() => onChangeColor(COLOR.drawColor.red)}></Circle>
+                <Circle bg={COLOR.drawColor.blue} size={8} onClick={() => onChangeColor(COLOR.drawColor.blue)}></Circle>
 
                 {/* 선 굵기 */}
                 <Box border={'1px solid #E9EBEC'} w={'200px'} p={1} borderRadius={6}>

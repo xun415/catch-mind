@@ -37,7 +37,7 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
     // 단어 선택 옵션 (전역 필요성 있음)
     const [wordOptions, setWordOptions] = useState([])
     // 현재 플레이어
-    const {drawPlayer, setdrawPlayer } = useGameRoomStore()
+    const {drawPlayer, setDrawPlayer } = useGameRoomStore()
     // 현재 플레이 여부
     const isMyTurn = drawPlayer?.username === username
     
@@ -92,9 +92,9 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
     useEffect(() => {
         if (socket) {
             // 게임 시작 이벤트 시
-            socket.on('finish-config', (data: {drawPlayer: Player}) => {
+            socket.on('finish-config', (data: Player) => {
                 setGameStatus(GAME_STATUS.단어선택중)
-                setdrawPlayer(data.drawPlayer)
+                setDrawPlayer(data)
             })
 
             socket.on('select-word', (data: {randomWords: string[]}) => {
@@ -115,7 +115,9 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
                  */
             })
 
-            socket.on('game-session-end', () => {
+            socket.on('game-session-end', (nextDrawer: Player) => {
+                setGameStatus(GAME_STATUS.단어선택중)
+                setDrawPlayer(nextDrawer)
                 console.log('[game-session-end]')
             })
         }

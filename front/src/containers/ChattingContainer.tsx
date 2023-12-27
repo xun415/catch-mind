@@ -4,6 +4,7 @@ import {useEffect, useState} from "react";
 import {Message} from "../types/data";
 import {useGameRoomStore} from "../stores/useGameRoomStore";
 import useUserStore from "../stores/useUserStore";
+import dayjs from "dayjs";
 
 const ChattingContainer = () => {
     const { socket } = useSocketContext()
@@ -33,7 +34,7 @@ const ChattingContainer = () => {
             <Box>
             {
                 messages.map((message) => (
-                    <span>{message.content}</span>
+                    <div key={`message_${dayjs()}_${message.content}`}>{message.content}</div>
                 ))
             }
             </Box>

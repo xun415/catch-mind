@@ -1,5 +1,5 @@
 import {Button, Center, Flex, Text} from "@chakra-ui/react";
-import {color} from "@assets/styles/color";
+import {COLOR} from "@assets/styles/color.css";
 
 type Props = {
     words: string[]
@@ -8,7 +8,7 @@ type Props = {
 }
 const WordSelector = ({ words, isdrawPlayer, onSelectWord }: Props) => {
 
-    return <Center bg={color.회색} w={'100%'} h={'100%'}>
+    return <Center bg={COLOR.회색} w={'100%'} h={'100%'}>
         {
             isdrawPlayer?
                 <Flex gap={4}>

@@ -15,7 +15,10 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@hookform/error-message": "^2.0.1",
+    "@react-buddy/ide-toolbox": "^2.4.0",
+    "@react-buddy/palette-chakra-ui": "^2.3.2",
     "axios": "^1.6.2",
+    "dayjs": "^1.11.10",
     "framer-motion": "^6.5.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -25,9 +28,7 @@
     "simple-peer": "^9.11.1",
     "socket.io-client": "^4.7.2",
     "zustand": "^4.4.7",
-    "zustand-persist": "^0.4.0",
-    "@react-buddy/ide-toolbox": "^2.4.0",
-    "@react-buddy/palette-chakra-ui": "^2.3.2"
+    "zustand-persist": "^0.4.0"
   },
   "devDependencies": {
     "@types/node": "^20.9.2",

@@ -32,7 +32,7 @@
  * @property {number} maxPlayerNumber 참여가능한 최대 플레이어 수
  * @property {number} timePerRound 라운드 당 시간
  * @property {number} currentRound 현재 라운드
- * @property {Player | null} currentPlayer 현재 라운드 진행중인 플레이어
+ * @property {Player | null} drawPlayer 현재 라운드 진행중인 플레이어
  * @property {GameSession[]} sessions 게임 세션 목록
  *
  */
