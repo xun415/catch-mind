@@ -1,4 +1,5 @@
 import {Card, CardBody, CardHeader, Heading, Text} from "@chakra-ui/react";
+import {COLOR} from "@assets/styles/color.css";
 
 type Props = {
     username: string
@@ -8,7 +9,7 @@ type Props = {
 const PlayerCard = ({ username, score, rank }: Props) => {
 
     return (
-        <Card variant={'elevated'} p={{ base: 2, md: 4}}>
+        <Card p={2} bg={COLOR.lightGray}>
             <CardHeader p={0}>
                 <Heading size='md'>{rank} {username}</Heading>
             </CardHeader>

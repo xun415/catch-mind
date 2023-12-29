@@ -4,3 +4,5 @@ export const GAME_STATUS = {
     게임중: 'onGame',
     종료: 'onEnd',
 }
+
+export type E_GAME_STATUS = (typeof GAME_STATUS)[keyof typeof GAME_STATUS]

@@ -94,7 +94,7 @@ const DrawingArea = () => {
     }, [])
 
     return (
-        <VStack border={'2px solid black'} p={2} borderRadius={20}>
+        <VStack border={`2px solid ${COLOR.lightGray}`} p={2} borderRadius={'xl'}>
             <canvas
                 css={css`
                     border: 2px solid black;

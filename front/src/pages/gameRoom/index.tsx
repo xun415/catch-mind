@@ -101,30 +101,27 @@ const GameRoomPage = () => {
     return (
         <>
             <Grid
-                border={'1px solid black'}
-                bg={''}
                 minW={'320px'}
+                gap={2}
                 gridTemplateAreas={{
                     base: `
-                        "bar bar"
                         "canvas canvas"
                         "playerList chatting"
                     `,
                     md: `
-                        "bar bar bar"
                         "playerList canvas chatting"
                         "playerList canvas chatting"
                     `
                 }}
-                gridTemplateRows={'60px 50vh 30vh'}
+                gridTemplateRows={'50vh 30vh'}
                 gridTemplateColumns={{
                     base: '1fr 1fr',
-                    md: '1fr 3fr 1fr'
+                    md: '1fr 2fr 1fr'
                 }}
             >
-                <GridItem gridArea={'bar'}>
-                    <GameBarContainer />
-                </GridItem>
+                {/*<GridItem gridArea={'bar'}>*/}
+                {/*    <GameBarContainer />*/}
+                {/*</GridItem>*/}
                 <GridItem gridArea={'playerList'}>
                     <PlayerListContainer players={players}/>
                 </GridItem>

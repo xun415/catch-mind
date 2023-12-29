@@ -205,22 +205,42 @@ io.on('connection', (socket) => {
          * 정답 시 -> 유저정보(스코어) 업데이트, 방 라운드 정보 업데이트 후 다음 라운드 유저 진행
          */
 
-        // 방, 현재 진행중 게임 세션 찾기
+
+
+        // 방 찾기
         const roomIdx = rooms.findIndex(room => room.id === roomId)
         const room = rooms[roomIdx]
-        const currentSessionIdx = room.sessions.length - 1
-
-        const currentSession = room.sessions[currentSessionIdx]
 
         // 유저 찾기
         const userIdx = room.players.findIndex(p => p.socketId === socket.id)
         const user = room.players[userIdx]
+
+        // 세션 진행중 여부, 세션 찾기
+        const isOnSession = room.sessions && room.sessions.length > 0
+        if (!isOnSession) {
+            // 게임 세션 진행중 아닐 경우 단순 메세지 처리
+            messageHandler(roomId, answer, 'chatting', user.username)
+            return;
+        }
+
+        const currentSessionIdx = room.sessions.length - 1
+        const currentSession = room.sessions[currentSessionIdx]
+
+
+
+        /** @type {Player} drawPlayer */
+        const drawPlayer = { ...room.drawPlayer }
 
         // 정답 확인
         const isCorrectAnswer = currentSession.answer === answer
 
         if (!isCorrectAnswer) {
             messageHandler(roomId, answer, 'chatting', user.username)
+            return;
+        }
+
+        // 술래가 정답을 말했을 경우 채팅 및 정답 처리 무시
+        if (user.id === drawPlayer.id) {
             return;
         }
 
@@ -232,9 +252,6 @@ io.on('connection', (socket) => {
 
         user.score += (leftTime * 10)
         room.players[userIdx] = { ...user }
-
-        /** @type {Player} drawPlayer */
-        const drawPlayer = { ...room.drawPlayer }
         drawPlayer.score += (leftTime * 5)
         const drawPlayerIdx = room.players.findIndex(p => p.socketId === drawPlayer.socketId)
         room.players[drawPlayerIdx] = {...drawPlayer}

@@ -19,7 +19,7 @@ const Header = () => {
             <Center h={'80px'} borderBottom={'1px solid gray'}>
                 <Container p={'20px'} maxW={'1480px'}>
                     <Flex justifyContent={'space-between'} alignItems={'center'}>
-                        <Text as={'h1'} fontWeight={800}  >CATCH MIND</Text>
+                        <Text as={'h1'} fontWeight={800} fontSize={'xx-large'}>CATCH MIND</Text>
                         <>
                         {
                             id ? <Button colorScheme={'blue'} onClick={onClickCopyRoomId}>초대하기</Button> : null

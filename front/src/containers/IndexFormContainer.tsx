@@ -1,8 +1,8 @@
-import IndexForm from "@components/organisms/IndexForm";
+import IndexForm from "@components/ui/IndexForm";
 import {useNavigate} from "react-router-dom";
 import {useUserContext} from "@contexts/user/UserContext";
 import {useState} from "react";
-import JoinRoomModal from "@components/organisms/JoinRoomModal";
+import JoinRoomModal from "@components/ui/JoinRoomModal";
 import {getIsRoomFull} from "@apis/room";
 import {AxiosError} from "axios";
 import useUserStore from "../stores/useUserStore";
@@ -10,7 +10,7 @@ import {useGameRoomStore} from "../stores/useGameRoomStore";
 
 const IndexFormContainer = () => {
     let navigate = useNavigate()
-    const setUsername = useUserStore(store => store.setUsername)
+    const {setUsername} = useUserStore()
     const { setId: setRoomId } = useGameRoomStore()
     const [isJoinRoomModalOpen, setIsJoinRoomModalOpen] = useState(false)
     const [joinRoomErrorMessage, setJoinRoomErrorMessage] = useState('')

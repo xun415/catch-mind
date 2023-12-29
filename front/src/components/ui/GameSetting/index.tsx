@@ -1,6 +1,7 @@
 import {FormControl, FormLabel, Select, VStack, Heading, Button} from "@chakra-ui/react";
 import {ChangeEvent} from "react";
 import {RoomConfig} from "../../../types/data";
+import {COLOR} from "@assets/styles/color.css";
 
 const ROUND_OPTION = [1,2,3,4]
 
@@ -44,7 +45,7 @@ const GameSetting = ({ isRoomHost, onOptionChange, roomConfig, onClickStartGame 
      *
      */
     return (
-        <VStack w={'360px'} p={10} border={'1px solid black'} borderRadius={'xl'}>
+        <VStack w={'360px'} p={10} border={`2px solid ${COLOR.lightGray}`} borderRadius={'xl'}>
             <Heading as='h3' size='lg'>
                 게임 설정
             </Heading>

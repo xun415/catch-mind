@@ -3,14 +3,12 @@ import {useSocketContext} from "@contexts/socket";
 import {useStreamContext} from "@contexts/stream";
 import {Player, RoomConfig} from "../types/data";
 import useUserStore from "../stores/useUserStore";
-import DrawingArea from "@components/organisms/DrawingArea";
+import DrawingArea from "@components/ui/DrawingArea";
 import {Center, VStack} from "@chakra-ui/react";
-import GameSetting from "@components/organisms/GameSetting";
+import GameSetting from "@components/ui/GameSetting";
 import {GAME_STATUS} from "../constant/game";
 import {useGameRoomStore} from "../stores/useGameRoomStore";
-import {css} from "@emotion/react";
-import WordSelector from "@components/organisms/WordSelector";
-import GameBar from "@components/organisms/GameBar";
+import WordSelector from "@components/ui/WordSelector";
 import {room} from "@apis/room";
 
 const initRoomConfig = {
@@ -32,12 +30,10 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
     const { streamsRef } = useStreamContext()
     // 게임방 설정
     const [roomConfig, setRoomConfig] = useState(initRoomConfig)
-    // 게임방 상태
-    const [gameStatus, setGameStatus] = useState(GAME_STATUS.설정중)
     // 단어 선택 옵션 (전역 필요성 있음)
     const [wordOptions, setWordOptions] = useState([])
-    // 현재 플레이어
-    const {drawPlayer, setDrawPlayer } = useGameRoomStore()
+    // 현재 플레이어, 게임 상태
+    const {drawPlayer, setDrawPlayer, gameStatus, setGameStatus, setCurrentAnswer, setCurrentAnswerLength } = useGameRoomStore()
     // 현재 플레이 여부
     const isMyTurn = drawPlayer?.username === username
     
@@ -70,6 +66,7 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
     const onSelectWord = (selectedWord: string) => {
         if (socket) {
             socket.emit('select-word', { roomId, selectedWord })
+            setCurrentAnswer(selectedWord)
         }
     }
 
@@ -107,8 +104,9 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
             })
 
             // 게임 시작 시 (단어 선택 완료 후)
-            socket.on('game-start', data => {
+            socket.on('game-start', (data: {wordLength: number}) => {
                 setGameStatus(GAME_STATUS.게임중)
+                setCurrentAnswerLength(data.wordLength)
                 /**
                  * todo
                  * game 바에 카운터, 단어(진행자), 단어수 표시
@@ -118,18 +116,12 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
             socket.on('game-session-end', (nextDrawer: Player) => {
                 setGameStatus(GAME_STATUS.단어선택중)
                 setDrawPlayer(nextDrawer)
-                console.log('[game-session-end]')
+            })
+            socket.on('game-end', () => {
+                setGameStatus(GAME_STATUS.종료)
             })
         }
     }, [])
-
-    useEffect(() => {
-        console.log('drawPlayer: ', drawPlayer)
-    }, [drawPlayer])
-
-    useEffect(() => {
-        console.log('isMyTurn: ', isMyTurn)
-    }, [isMyTurn])
 
 
     // video src에 wetRTC stream 할당
@@ -168,10 +160,21 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
                     : null
             }
             {
-                gameStatus === GAME_STATUS.단어선택중? <WordSelector isdrawPlayer={isMyTurn} words={wordOptions} onSelectWord={onSelectWord} />: null
+                gameStatus === GAME_STATUS.단어선택중? <WordSelector isDrawPlayer={isMyTurn} words={wordOptions} onSelectWord={onSelectWord} />: null
             }
             {
                 (gameStatus === GAME_STATUS.게임중 && isMyTurn) ? <DrawingArea />: null
+            }
+            {
+                (gameStatus === GAME_STATUS.종료) ? <div>
+                    {
+                        players.map((player) => (
+                            <div key={player.id}>
+                                {player.username}: {player.score}
+                            </div>
+                        ))
+                    }
+                </div> : null
             }
             {/* 플레이어 비디오(음성, 캔버스) */}
             {
@@ -179,9 +182,12 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
                     .filter(player => player.username !== username)
                     .map(player =>
                         <video
-                            width={'400px'}
-                            height={'400px'}
-                            hidden={player.socketId !== drawPlayer?.socketId}
+                            style={{
+                                display:
+                                    // 게임중일때 술래의 화면만 표시
+                                    gameStatus === GAME_STATUS.게임중 && player.socketId === drawPlayer?.socketId ?
+                                        'block' : 'none'
+                            }}
                             key={`${player.socketId}-video`}
                             id={`${player.socketId}-video`}
                             autoPlay

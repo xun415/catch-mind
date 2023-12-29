@@ -1,3 +1,5 @@
+import {E_GAME_STATUS} from "../constant/game";
+
 export type User = {
     username: string
     id: string
@@ -28,6 +30,12 @@ export type Room = RoomConfig & {
     currentRound: number
     // 현재 라운드 진행중인 플레이어
     drawPlayer: Player | null
+    // 게임 상태
+    gameStatus: E_GAME_STATUS
+    // 정답
+    currentAnswer: string | null
+    // 정답 길이
+    currentAnswerLength: number | null
 }
 
 export type Message = {

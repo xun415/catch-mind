@@ -11,9 +11,10 @@ const useUserStore = create<UserStoreProps>()(
         set => ({
             username: '',
             setUsername: (username: string) => {
+                console.log('[store] setUsername', username)
                 set(prev => ({
                     ...prev,
-                        username
+                    username
                 }))
             }
         })

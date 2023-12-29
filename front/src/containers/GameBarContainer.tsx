@@ -1,11 +1,23 @@
-import GameBar from "@components/organisms/GameBar";
-import {copyText} from "../utils/browser/clipboard";
+import GameBar from "@components/ui/GameBar";
 import {useGameRoomStore} from "../stores/useGameRoomStore";
+import useUserStore from "../stores/useUserStore";
 
 const GameBarContainer = () => {
-    const { drawPlayer, currentRound, timePerRound, totalRound } = useGameRoomStore()
+    const { username } = useUserStore()
+    const { drawPlayer, currentRound, timePerRound, totalRound, gameStatus, currentAnswer, currentAnswerLength } = useGameRoomStore()
+    // 현재 플레이 여부
+    const isMyTurn = drawPlayer?.username === username
+
     return (
-        <GameBar />
+        <GameBar
+            isMyTurn={isMyTurn}
+            totalRound={totalRound}
+            currentRound={currentRound}
+            gameStatus={gameStatus}
+            timePerRound={timePerRound}
+            currentAnswer={currentAnswer}
+            currentAnswerLength={currentAnswerLength}
+        />
     )
 }
 
