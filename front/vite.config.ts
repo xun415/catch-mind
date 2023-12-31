@@ -23,7 +23,7 @@ export default defineConfig({
       '@components': path.resolve(__dirname, './src/components'),
       '@constants': path.resolve(__dirname, './src/libs/constants'),
       '@assets': path.resolve(__dirname, './src/assets'),
-      '@util': path.resolve(__dirname, './src/libs/util'),
+      '@utils': path.resolve(__dirname, './src/utils'),
       '@pages': path.resolve(__dirname, './src/pages'),
       '@apis': path.resolve(__dirname, './src/apis'),
       '@hooks': path.resolve(__dirname, './src/hooks'),

@@ -1,6 +1,7 @@
-import {Button, Center, Container, Flex, Text} from "@chakra-ui/react";
+import {Box, Button, Center, Container, Flex, Text} from "@chakra-ui/react";
 import {copyText} from "../../../utils/browser/clipboard";
 import {useGameRoomStore} from "../../../stores/useGameRoomStore";
+import {ReactNode} from "react";
 
 const Header = () => {
     const { id } = useGameRoomStore()
@@ -15,19 +16,15 @@ const Header = () => {
     }
 
     return (
-        <header>
-            <Center h={'80px'} borderBottom={'1px solid gray'}>
-                <Container p={'20px'} maxW={'1480px'}>
-                    <Flex justifyContent={'space-between'} alignItems={'center'}>
-                        <Text as={'h1'} fontWeight={800} fontSize={'xx-large'}>CATCH MIND</Text>
-                        <>
-                        {
-                            id ? <Button colorScheme={'blue'} onClick={onClickCopyRoomId}>초대하기</Button> : null
-                        }
-                        </>
-                    </Flex>
-                </Container>
-            </Center>
+        <header css={{ borderBottom: '1px solid gray' }}>
+            <Container p={'20px'} maxW={'1480px'}>
+                <Flex justifyContent={'space-between'} alignItems={'center'}>
+                    <Text as={'h1'} fontWeight={800} fontSize={'xx-large'}>CATCH MIND</Text>
+                    {
+                        id ? <Button colorScheme={'blue'} onClick={onClickCopyRoomId}>초대하기</Button> as ReactNode : null
+                    }
+                </Flex>
+            </Container>
         </header>
     )
 }

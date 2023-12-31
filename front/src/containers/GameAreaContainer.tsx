@@ -1,15 +1,12 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState} from "react";
 import {useSocketContext} from "@contexts/socket";
 import {useStreamContext} from "@contexts/stream";
 import {Player, RoomConfig} from "../types/data";
 import useUserStore from "../stores/useUserStore";
-import DrawingArea from "@components/ui/DrawingArea";
-import {Center, VStack} from "@chakra-ui/react";
-import GameSetting from "@components/ui/GameSetting";
 import {GAME_STATUS} from "../constant/game";
 import {useGameRoomStore} from "../stores/useGameRoomStore";
-import WordSelector from "@components/ui/WordSelector";
 import {room} from "@apis/room";
+import GameSection from "@components/ui/GameSection";
 
 const initRoomConfig = {
     totalRound: 3,
@@ -26,16 +23,17 @@ type Props = {
 
 const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: Props) => {
     const { socket } = useSocketContext()
-    const username = useUserStore(store => store.username)
+    const {username} = useUserStore()
     const { streamsRef } = useStreamContext()
     // 게임방 설정
     const [roomConfig, setRoomConfig] = useState(initRoomConfig)
     // 단어 선택 옵션 (전역 필요성 있음)
     const [wordOptions, setWordOptions] = useState([])
     // 현재 플레이어, 게임 상태
-    const {drawPlayer, setDrawPlayer, gameStatus, setGameStatus, setCurrentAnswer, setCurrentAnswerLength } = useGameRoomStore()
+    const {drawPlayer, setDrawPlayer, gameStatus, setGameStatus, currentRound,currentAnswer, currentAnswerLength,totalRound, timePerRound, setCurrentAnswer, setCurrentAnswerLength } = useGameRoomStore()
     // 현재 플레이 여부
     const isMyTurn = drawPlayer?.username === username
+    const userId = players.find(p => p.username === username)?.id
     
     // 게임 설정 변경 시
     const onConfigChange = (newOption) => {
@@ -75,9 +73,7 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
         if (isRoomHost || !roomId) return
         try {
             room(roomId).then((response) => {
-                console.log(response.data.room)
                 const { maxPlayerNumber, totalRound, timePerRound } = response.data.room
-                console.log('[setRoomConfig] ', maxPlayerNumber, totalRound, timePerRound)
                 setRoomConfig({maxPlayerNumber, totalRound, timePerRound})
             }).catch(e => e)
         } catch (e) {
@@ -151,52 +147,76 @@ const GameAreaContainer = ({ roomId, isRoomHost, players, connectedSocketIds }: 
      * [step3] 게임 종료
      * 등수 노출
      */
-
     return (
-        <Center h={'full'}>
-            {
-                gameStatus === GAME_STATUS.설정중 ?
-                    <GameSetting isRoomHost={isRoomHost} onOptionChange={onConfigChange} roomConfig={roomConfig} onClickStartGame={onClickStartGame}/>
-                    : null
-            }
-            {
-                gameStatus === GAME_STATUS.단어선택중? <WordSelector isDrawPlayer={isMyTurn} words={wordOptions} onSelectWord={onSelectWord} />: null
-            }
-            {
-                (gameStatus === GAME_STATUS.게임중 && isMyTurn) ? <DrawingArea />: null
-            }
-            {
-                (gameStatus === GAME_STATUS.종료) ? <div>
-                    {
-                        players.map((player) => (
-                            <div key={player.id}>
-                                {player.username}: {player.score}
-                            </div>
-                        ))
-                    }
-                </div> : null
-            }
-            {/* 플레이어 비디오(음성, 캔버스) */}
-            {
-                players
-                    .filter(player => player.username !== username)
-                    .map(player =>
-                        <video
-                            style={{
-                                display:
-                                    // 게임중일때 술래의 화면만 표시
-                                    gameStatus === GAME_STATUS.게임중 && player.socketId === drawPlayer?.socketId ?
-                                        'block' : 'none'
-                            }}
-                            key={`${player.socketId}-video`}
-                            id={`${player.socketId}-video`}
-                            autoPlay
-
-                        />
-                    )
-            }
-        </Center>
+        <GameSection gameStatus={gameStatus} players={players} drawPlayerId={drawPlayer?.id} userId={userId}>
+            <GameSection.GameSetting isRoomHost={isRoomHost} onOptionChange={onConfigChange} roomConfig={roomConfig} onClickStartGame={onClickStartGame} />
+            <GameSection.WordSelector isDrawPlayer={isMyTurn} words={wordOptions} onSelectWord={onSelectWord} />
+            <GameSection.DrawingCanvas />
+        </GameSection>
     )
+    // return (
+    //     <VStack h={'100%'} bg={COLOR.lightGray} border={`1px solid ${COLOR.gray}`} borderRadius={'xl'} p={2}>
+    //         {
+    //             gameStatus === GAME_STATUS.게임중 &&
+    //             <GameBar
+    //                 isMyTurn={isMyTurn}
+    //                 gameStatus={gameStatus}
+    //                 currentRound={currentRound}
+    //                 currentAnswer={currentAnswer}
+    //                 currentAnswerLength={currentAnswerLength}
+    //                 totalRound={totalRound}
+    //                 timePerRound={timePerRound}
+    //             /> as ReactNode
+    //         }
+    //
+    //     <Center h={'full'} w={'100%'}>
+    //
+    //         {
+    //             gameStatus === GAME_STATUS.설정중 ?
+    //                 <GameSetting isRoomHost={isRoomHost} onOptionChange={onConfigChange} roomConfig={roomConfig} onClickStartGame={onClickStartGame}/>
+    //                 : null
+    //         }
+    //         {
+    //             gameStatus === GAME_STATUS.단어선택중? <WordSelector isDrawPlayer={isMyTurn} words={wordOptions} onSelectWord={onSelectWord} />: null
+    //         }
+    //         {
+    //             (gameStatus === GAME_STATUS.게임중 && isMyTurn) ? <DrawingArea />: null
+    //         }
+    //         {
+    //             (gameStatus === GAME_STATUS.종료) ? <div>
+    //                 {
+    //                     players.map((player) => (
+    //                         <div key={player.id}>
+    //                             {player.username}: {player.score}
+    //                         </div>
+    //                     ))
+    //                 }
+    //             </div> : null
+    //         }
+    //         {/* 플레이어 비디오(음성, 캔버스) */}
+    //         {
+    //             players
+    //                 .filter(player => player.username !== username)
+    //                 .map(player =>
+    //                     <video
+    //                         style={{
+    //                             display:
+    //                                 // 게임중일때 술래의 화면만 표시
+    //                                 gameStatus === GAME_STATUS.게임중 && player.socketId === drawPlayer?.socketId ?
+    //                                     'block' : 'none'
+    //                         }}
+    //                         width={'100%'}
+    //                         height={'100%'}
+    //                         key={`${player.socketId}-video`}
+    //                         id={`${player.socketId}-video`}
+    //                         autoPlay
+    //
+    //                     />
+    //                 )
+    //         }
+    //     </Center>
+    //     </VStack>
+    // )
 }
 
 export default GameAreaContainer

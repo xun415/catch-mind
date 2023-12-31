@@ -9,30 +9,31 @@ import {
     SliderTrack,
     VStack
 } from "@chakra-ui/react";
-import {useEffect, useRef, useState} from "react";
+import {createRef, useEffect, useLayoutEffect, useRef, useState} from "react";
 import {COLOR} from "@assets/styles/color.css";
 import {addCanvasStream} from "../../../utils/webRTCHandler";
 import {css} from "@emotion/react";
 
 const DEFAULT_LINE_WIDTH = 5
 
-const DrawingArea = () => {
-    // @ts-ignore
-    const canvasRef = useRef<HTMLCanvasElement>(null)
+const DrawingCanvas = () => {
+    const wrapRef = useRef<HTMLDivElement | null>(null)
+    const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null)
     const [isDrawing, setIsDrawing] = useState(false)
     const [drawColor, setDrawColor] = useState(COLOR.drawColor.black)
+    const [width, setWidth] = useState(0)
 
 
     const onChangeColor = (newColor: string) => {
-        const ctx = canvasRef.current.getContext('2d')
+        const ctx = canvasRef.current!.getContext('2d')
         ctx.strokeStyle = newColor
         setCtx(ctx)
         setDrawColor(newColor)
     }
 
     const onChangeLineWidth = (lineWidth: number) => {
-        const ctx = canvasRef.current.getContext('2d')
+        const ctx = canvasRef.current!.getContext('2d')
         ctx.lineWidth = lineWidth
         setCtx(ctx)
     }
@@ -61,16 +62,16 @@ const DrawingArea = () => {
     }
 
     const onClickErase = () => {
-        const ctx = canvasRef.current.getContext('2d')
+        const ctx = canvasRef.current!.getContext('2d')
         ctx.strokeStyle = COLOR.drawColor.white
         setCtx(ctx)
         setDrawColor(COLOR.drawColor.white)
     }
 
     const resetCanvas = () => {
-        const ctx = canvasRef.current.getContext('2d')
+        const ctx = canvasRef.current!.getContext('2d')
         ctx.fillStyle = COLOR.drawColor.white
-        ctx.fillRect(0,0,800, 800)
+        ctx.fillRect(0,0,width, width)
     }
 
     useEffect(() => {
@@ -78,8 +79,8 @@ const DrawingArea = () => {
         if (canvas) {
             resetCanvas()
 
-            canvas.width = 800
-            canvas.height = 800
+            canvas.width = canvas.offsetWidth
+            canvas.height = canvas.offsetHeight
 
             const ctx = canvas.getContext('2d')
             ctx.lineWidth = 5
@@ -94,15 +95,19 @@ const DrawingArea = () => {
     }, [])
 
     return (
-        <VStack border={`2px solid ${COLOR.lightGray}`} p={2} borderRadius={'xl'}>
+        <VStack id={'canvasWrap'} border={`2px solid ${COLOR.lightGray}`} p={2} borderRadius={'xl'} ref={wrapRef} h={'100%'} width={'100%'} >
             <canvas
+                id={'drawingCanvas'}
                 css={css`
                     border: 2px solid black;
+                    height: 100%;
+                    width: 100%;
                `}
-                ref={canvasRef} onMouseDown={startDrawing} onMouseLeave={endDrawing} onMouseUp={endDrawing}
-                onMouseMove={drawing}
-            />
-            {/* 색 선택, 선 굵기, 지우개, 전체 지우기 */}
+            ref={canvasRef}
+                onMouseDown={startDrawing} onMouseLeave={endDrawing} onMouseUp={endDrawing}
+            onMouseMove={drawing}
+        />
+        {/* 색 선택, 선 굵기, 지우개, 전체 지우기 */}
             <HStack >
                 {/* 색 선택 */}
                 <input type="color" onChange={event => onChangeColor(event.target.value)} value={drawColor}/>
@@ -130,4 +135,4 @@ const DrawingArea = () => {
     )
 }
 
-export default DrawingArea
+export default DrawingCanvas

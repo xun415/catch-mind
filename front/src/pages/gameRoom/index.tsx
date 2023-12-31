@@ -2,7 +2,7 @@ import {useSocketContext} from "@contexts/socket";
 import { useEffect, useState} from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
 import {useLocation} from "react-router-dom";
-import * as webRTCHandler from "../../utils/webRTCHandler";
+import * as webRTCHandler from "@utils/webRTCHandler";
 import GameBarContainer from "../../containers/GameBarContainer";
 import PlayerListContainer from "../../containers/PlayerListContainer";
 import GameAreaContainer from "../../containers/GameAreaContainer";
@@ -12,6 +12,7 @@ import {Player} from "../../types/data";
 import useUserStore from "../../stores/useUserStore";
 import {useNavigate} from "react-router-dom";
 import {useGameRoomStore} from "../../stores/useGameRoomStore";
+import {SignalData} from "simple-peer";
 
 const GameRoomPage = () => {
     const { socket } = useSocketContext()
@@ -42,7 +43,7 @@ const GameRoomPage = () => {
                 setRoomId(roomId)
             })
 
-            socket.on('conn-signal', data => {
+            socket.on('conn-signal', (data: {signal: SignalData, connUserSocketId: string}) => {
                 webRTCHandler.handleSignalingData(data)
                 setConnectedSocketIds(prev => [...prev, data.connUserSocketId])
             })
@@ -99,40 +100,41 @@ const GameRoomPage = () => {
      * - webRTC peer stream 위치 고려 (캔버스 영역의 스트림와, 음성)
      */
     return (
-        <>
-            <Grid
-                minW={'320px'}
-                gap={2}
-                gridTemplateAreas={{
-                    base: `
-                        "canvas canvas"
-                        "playerList chatting"
-                    `,
-                    md: `
-                        "playerList canvas chatting"
-                        "playerList canvas chatting"
-                    `
-                }}
-                gridTemplateRows={'50vh 30vh'}
-                gridTemplateColumns={{
-                    base: '1fr 1fr',
-                    md: '1fr 2fr 1fr'
-                }}
-            >
-                {/*<GridItem gridArea={'bar'}>*/}
-                {/*    <GameBarContainer />*/}
-                {/*</GridItem>*/}
-                <GridItem gridArea={'playerList'}>
-                    <PlayerListContainer players={players}/>
-                </GridItem>
-                <GridItem gridArea={'canvas'}>
-                    <GameAreaContainer roomId={roomId} isRoomHost={isRoomHost} players={players} connectedSocketIds={connectedSocketIds}/>
-                </GridItem>
-                <GridItem gridArea={'chatting'}>
-                    <ChattingContainer />
-                </GridItem>
-            </Grid>
-        </>
+        <Grid
+            minW={'320px'}
+            gap={2}
+            h={'100%'}
+            gridTemplateAreas={{
+                base: `
+                    "bar bar"
+                    "canvas canvas"
+                    "playerList chatting"
+                `,
+                md: `
+                    "bar bar bar"
+                    "playerList canvas chatting"
+                    "playerList canvas chatting"
+                `
+            }}
+            gridTemplateRows={'60px 50% 30%'}
+            gridTemplateColumns={{
+                base: '1fr 1fr',
+                md: '1fr 2fr 1fr'
+            }}
+        >
+            <GridItem gridArea={'bar'}>
+                <GameBarContainer />
+            </GridItem>
+            <GridItem gridArea={'playerList'}>
+                <PlayerListContainer players={players}/>
+            </GridItem>
+            <GridItem gridArea={'canvas'}>
+                <GameAreaContainer roomId={roomId} isRoomHost={isRoomHost} players={players} connectedSocketIds={connectedSocketIds}/>
+            </GridItem>
+            <GridItem gridArea={'chatting'}>
+                <ChattingContainer />
+            </GridItem>
+        </Grid>
     )
 }
 

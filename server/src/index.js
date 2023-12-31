@@ -165,13 +165,15 @@ io.on('connection', (socket) => {
         /** @type {Room} room */
         const room = rooms[roomIdx]
 
-        room.sessions = [...room.sessions, {
+        const newSession = {
             startAt: dayjs().format('YYYY-MM-DD HH:mm:ss'),
             endAt: null,
             answer: selectedWord,
             round: room.currentRound,
             drawPlayer: { ...room.drawPlayer }
-        }]
+        }
+
+        room.sessions = Array.isArray(room.sessions) ? [...room.sessions, newSession] : [newSession]
 
         const gameSessionLength = room.sessions.length
 

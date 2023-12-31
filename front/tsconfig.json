@@ -25,7 +25,7 @@
       "@components/*": ["./components/*"],
       "@constants/*": ["./libs/constants/*"],
       "@assets/*": ["./assets/*"],
-      "@util/*": ["./libs/util/*"],
+      "@utils/*": ["./utils/*"],
       "@pages/*": ["./pages/*"],
       "@apis/*": ["./apis/*"],
       "@hooks/*": ["./hooks/*"],

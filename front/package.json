@@ -17,6 +17,7 @@
     "@hookform/error-message": "^2.0.1",
     "@react-buddy/ide-toolbox": "^2.4.0",
     "@react-buddy/palette-chakra-ui": "^2.3.2",
+    "@types/simple-peer": "^9.11.8",
     "axios": "^1.6.2",
     "dayjs": "^1.11.10",
     "framer-motion": "^6.5.1",

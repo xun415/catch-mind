@@ -1,8 +1,4 @@
-import io, { type Socket } from 'socket.io-client'
-import {createContext, createRef, ReactNode, Ref, RefObject, useContext, useEffect, useRef, useState} from "react";
-import {Stream} from "stream";
-
-const SERVER_URL = 'http://localhost:5002'
+import {createContext, createRef, ReactNode, RefObject, useContext, useRef} from "react";
 
 type StreamContextType = {
    streamsRef: RefObject<{ [key: string]: MediaStream }>

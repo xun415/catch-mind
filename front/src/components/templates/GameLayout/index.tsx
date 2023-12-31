@@ -6,12 +6,10 @@ const GameLayout = () => {
     return (
         <>
             <Header/>
-            <main>
-                <Center>
-                    <Container p={'20px'} maxW={'1480px'}>
-                        <Outlet />
-                    </Container>
-                </Center>
+            <main css={{ height: '90vh'}}>
+                <Container maxW={'1480px'} h={'100%'}>
+                    <Outlet />
+                </Container>
             </main>
         </>
     )

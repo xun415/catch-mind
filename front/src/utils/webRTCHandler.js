@@ -1,4 +1,4 @@
-import Peer from 'simple-peer'
+import Peer, {SignalData} from 'simple-peer'
 
 // 각 peer 들에 대한 정보 보관
 let peers = {}
@@ -10,9 +10,9 @@ const DEFAULT_CONSTRAINS = {
     video: false
 }
 
-let localStream;
-let prevAudioStream;
-let prevCanvasStream;
+let localStream
+let prevAudioStream
+let prevCanvasStream
 
 export const setLocalAudioStream = (onSuccess, onFail) => {
     navigator.mediaDevices.getUserMedia(DEFAULT_CONSTRAINS).then(stream => {
@@ -27,7 +27,7 @@ export const setLocalAudioStream = (onSuccess, onFail) => {
 }
 
 
-export const addCanvasStream = (canvasStream: MediaStream, onSuccess?: () => void, onFail?: () => void) => {
+export const addCanvasStream = (canvasStream) => {
     for (let peerSocketId in peers) {
         const peer = peers[peerSocketId]
 
@@ -47,7 +47,10 @@ export const addCanvasStream = (canvasStream: MediaStream, onSuccess?: () => voi
     }
 }
 
-export const prepareNewPeerConnection = (connUserSocketId: string, isRequester: boolean, onSignalData, onStream) => {
+// type OnSignalData = (data: {signal: SignalData, connUserSocketId: string}) => void
+// type OnStream = (stream: MediaStream, connUserSocketId: string) => void
+
+export const prepareNewPeerConnection = (connUserSocketId, isRequester, onSignalData, onStream) => {
 
     peers[connUserSocketId] = new Peer({
         initiator: isRequester,

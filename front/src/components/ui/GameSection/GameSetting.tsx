@@ -45,7 +45,7 @@ const GameSetting = ({ isRoomHost, onOptionChange, roomConfig, onClickStartGame 
      *
      */
     return (
-        <VStack w={'360px'} p={10} border={`2px solid ${COLOR.lightGray}`} borderRadius={'xl'}>
+        <VStack w={'360px'} p={10} borderRadius={'xl'}>
             <Heading as='h3' size='lg'>
                 게임 설정
             </Heading>
