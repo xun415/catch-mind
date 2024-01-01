@@ -9,10 +9,10 @@ import {
     SliderTrack,
     VStack
 } from "@chakra-ui/react";
-import {createRef, useEffect, useLayoutEffect, useRef, useState} from "react";
+import {MouseEventHandler, useEffect, useRef, useState} from "react";
 import {COLOR} from "@assets/styles/color.css";
-import {addCanvasStream} from "../../../utils/webRTCHandler";
-import {css} from "@emotion/react";
+// @ts-ignore
+import {addCanvasStream} from "@utils/webRTCHandler";
 
 const DEFAULT_LINE_WIDTH = 5
 
@@ -23,10 +23,12 @@ const DrawingCanvas = () => {
     const [isDrawing, setIsDrawing] = useState(false)
     const [drawColor, setDrawColor] = useState(COLOR.drawColor.black)
     const [width, setWidth] = useState(0)
+    const [height, setHeight] = useState(0)
 
 
     const onChangeColor = (newColor: string) => {
         const ctx = canvasRef.current!.getContext('2d')
+        if (!ctx) return;
         ctx.strokeStyle = newColor
         setCtx(ctx)
         setDrawColor(newColor)
@@ -34,6 +36,7 @@ const DrawingCanvas = () => {
 
     const onChangeLineWidth = (lineWidth: number) => {
         const ctx = canvasRef.current!.getContext('2d')
+        if (!ctx) return;
         ctx.lineWidth = lineWidth
         setCtx(ctx)
     }
@@ -46,7 +49,7 @@ const DrawingCanvas = () => {
         setIsDrawing(false)
     }
 
-    const drawing = ({nativeEvent}) => {
+    const drawing: MouseEventHandler<HTMLCanvasElement> = ({nativeEvent}) => {
         const {offsetX, offsetY} = nativeEvent
 
         if (!ctx) {
@@ -63,6 +66,7 @@ const DrawingCanvas = () => {
 
     const onClickErase = () => {
         const ctx = canvasRef.current!.getContext('2d')
+        if (!ctx) return;
         ctx.strokeStyle = COLOR.drawColor.white
         setCtx(ctx)
         setDrawColor(COLOR.drawColor.white)
@@ -70,27 +74,30 @@ const DrawingCanvas = () => {
 
     const resetCanvas = () => {
         const ctx = canvasRef.current!.getContext('2d')
+        if (!ctx) return;
         ctx.fillStyle = COLOR.drawColor.white
-        ctx.fillRect(0,0,width, width)
+        ctx.fillRect(0,0, width, height)
     }
 
     useEffect(() => {
         const canvas = canvasRef.current
-        if (canvas) {
-            resetCanvas()
 
-            canvas.width = canvas.offsetWidth
-            canvas.height = canvas.offsetHeight
+        if (!canvas) return;
+        resetCanvas()
+        setWidth(canvas.offsetWidth)
+        setHeight(canvas.offsetHeight)
 
-            const ctx = canvas.getContext('2d')
-            ctx.lineWidth = 5
-            ctx.strokeStyle = '#000000'
-            ctx.fillStyle = COLOR.drawColor.white
-            ctx.fillRect(0,0,800, 800)
-            setCtx(ctx)
-            addCanvasStream(canvas.captureStream(25))
-        }
+        canvas.width = canvas.offsetWidth
+        canvas.height = canvas.offsetHeight
 
+        const ctx = canvas.getContext('2d')
+        if (!ctx) return;
+        ctx.lineWidth = 5
+        ctx.strokeStyle = '#000000'
+        ctx.fillStyle = COLOR.drawColor.white
+        ctx.fillRect(0,0, canvas.offsetWidth, canvas.offsetHeight)
+        setCtx(ctx)
+        addCanvasStream(canvas.captureStream(25))
 
     }, [])
 
@@ -98,11 +105,11 @@ const DrawingCanvas = () => {
         <VStack id={'canvasWrap'} border={`2px solid ${COLOR.lightGray}`} p={2} borderRadius={'xl'} ref={wrapRef} h={'100%'} width={'100%'} >
             <canvas
                 id={'drawingCanvas'}
-                css={css`
-                    border: 2px solid black;
-                    height: 100%;
-                    width: 100%;
-               `}
+                style={{
+                    border: '2px solid black',
+                    height: '100%;',
+                    width: '100%;'
+                }}
             ref={canvasRef}
                 onMouseDown={startDrawing} onMouseLeave={endDrawing} onMouseUp={endDrawing}
             onMouseMove={drawing}

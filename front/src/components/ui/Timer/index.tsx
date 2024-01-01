@@ -1,5 +1,4 @@
 import {useEffect, useState} from "react";
-import {GAME_STATUS} from "../../../constant/game";
 
 type Props = {
     initSeconds: number
@@ -9,7 +8,7 @@ const Timer = ({initSeconds, start = false}: Props) => {
     const [seconds, setSeconds] = useState(initSeconds)
 
     useEffect(() => {
-        let intervalId;
+        let intervalId: NodeJS.Timeout;
             if (start) {
                 intervalId = setInterval(() => {
                     // 1초마다 타이머를 감소
@@ -21,7 +20,7 @@ const Timer = ({initSeconds, start = false}: Props) => {
         return () => clearInterval(intervalId);
     }, [start]);
 
-    const formatTime = (time) => {
+    const formatTime = (time: number) => {
         const minutes = Math.floor(time / 60);
         const remainingSeconds = time % 60;
         return `${minutes}:${remainingSeconds < 10 ? '0' : ''}${remainingSeconds}`;

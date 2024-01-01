@@ -1,5 +1,5 @@
-import {Box, Button, Center, Container, Flex, Text} from "@chakra-ui/react";
-import {copyText} from "../../../utils/browser/clipboard";
+import {Button, Container, Flex, Text} from "@chakra-ui/react";
+import {copyText} from "@utils/browser/clipboard";
 import {useGameRoomStore} from "../../../stores/useGameRoomStore";
 import {ReactNode} from "react";
 
@@ -16,7 +16,7 @@ const Header = () => {
     }
 
     return (
-        <header css={{ borderBottom: '1px solid gray' }}>
+        <header style={{ borderBottom: '1px solid gray' }}>
             <Container p={'20px'} maxW={'1480px'}>
                 <Flex justifyContent={'space-between'} alignItems={'center'}>
                     <Text as={'h1'} fontWeight={800} fontSize={'xx-large'}>CATCH MIND</Text>

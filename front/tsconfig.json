@@ -35,7 +35,8 @@
       "@contexts/*": ["./contexts/*"]
     },
     "allowSyntheticDefaultImports": true,
-    "jsxImportSource": "@emotion/react"
+      // emotion 사용을 위해 설정했으나, ts 이슈로 제거
+//    "jsxImportSource": "@emotion/react"
   },
   "include": ["src",
     "**/*.ts",

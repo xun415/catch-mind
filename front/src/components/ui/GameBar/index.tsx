@@ -1,7 +1,7 @@
-import {Box, Center, Flex, HStack, PinInput, PinInputField, Text} from "@chakra-ui/react";
-import { AiOutlineCopy } from "react-icons/ai";
+import {Flex, HStack, PinInput, PinInputField, Text} from "@chakra-ui/react";
 import {E_GAME_STATUS, GAME_STATUS} from "../../../constant/game";
-import {ReactNode, useEffect, useState} from "react";
+import {ReactNode} from "react";
+import { v4 as uuid } from 'uuid';
 import Timer from "@components/ui/Timer";
 import {COLOR} from "@assets/styles/color.css";
 
@@ -23,7 +23,7 @@ const GameBar = ({ isMyTurn, currentRound, totalRound, timePerRound, gameStatus,
      */
     return (
             <Flex h={'100%'} borderRadius={'0 0 20px 20px'} border={`2px solid ${COLOR.lightGray}`} borderTop={0} flexDirection={'column'} alignItems={'center'}>
-                <div>{currentRound} / {totalRound} 라운드</div>
+                <Text>{currentRound} / {totalRound} 라운드</Text>
 
                 <Flex justifyContent={'space-between'} w={'100%'} px={4}>
                     {
@@ -36,7 +36,7 @@ const GameBar = ({ isMyTurn, currentRound, totalRound, timePerRound, gameStatus,
                                 <PinInput isDisabled defaultValue={currentAnswer ?? ''} size={'sm'}>
                                     {
                                         Array.from({length:currentAnswer?.length?? 0})
-                                            .map(v =><PinInputField />) as ReactNode
+                                            .map((_) =><PinInputField key={uuid()} />) as ReactNode
                                     }
                                 </PinInput>
                             </HStack> as ReactNode
@@ -47,7 +47,7 @@ const GameBar = ({ isMyTurn, currentRound, totalRound, timePerRound, gameStatus,
                             <PinInput isDisabled placeholder={'_'} size={'sm'}>
                                 {
                                     Array.from({length: currentAnswerLength??0})
-                                        .map(_ => <PinInputField  />) as ReactNode
+                                        .map((_) => <PinInputField key={uuid()}  />) as ReactNode
                                 }
                             </PinInput>
                         </HStack> as ReactNode : null

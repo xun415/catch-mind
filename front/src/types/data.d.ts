@@ -21,9 +21,11 @@ export type RoomConfig = {
     timePerRound: number
 }
 
-export type Room = RoomConfig & {
+export type Room = {
     // 룸 아이디
     id: string | null
+    // 룸 설정
+    roomConfig: RoomConfig
     //  소속 유저 리스트
     players: Player[]
     // 현재 라운드

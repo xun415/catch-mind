@@ -72,19 +72,12 @@ app.get('/api/rooms/:roomId', (req, res) => {
 })
 
 io.on('connection', (socket) => {
-    console.log('socket', socket.id)
     socket.on('create-new-room', (data) => {
-        console.log('create-new-room ', data)
         createNewRoomHandler(data, socket)
     })
 
     socket.on('join-room', (data) => {
-        console.log('join-room', data)
         joinRoomHandler(data, socket)
-    })
-
-    socket.on('complete-setting', data => {
-        console.log('complete-setting', data)
     })
 
     socket.on('disconnect', () => {
@@ -92,12 +85,10 @@ io.on('connection', (socket) => {
     })
 
     socket.on('conn-signal', data => {
-        console.log('[server] conn-signal')
         signalingHandler(data, socket)
     })
 
     socket.on('conn-init', data => {
-        console.log('[server] conn-init')
         initializeConnectionHandler(data, socket)
     })
 
@@ -108,12 +99,6 @@ io.on('connection', (socket) => {
 
     // 게임 설정 완료 시
     socket.on('finish-config', (roomId) => {
-        console.log('[server] finish-config', socket.id)
-        /**
-         * todo
-         * 채팅 이벤트 emit(선택중 등)
-         * 방 라운드 정보 업데이트 및 진행 유저 지정
-         */
         // 참여하고자 하는 방 찾기
         const roomIdx = rooms.findIndex(room => room.id === roomId)
 
@@ -154,11 +139,6 @@ io.on('connection', (socket) => {
     // 진행 유저가 선택지 골랐을 시
     socket.on('select-word', (data) => {
         const { roomId, selectedWord } = data
-        /**
-         * todo
-         * 유저가 고른 값을 현 라운드의 정답으로 저장하고,
-         * 현 라운드 진행
-         */
         // 참여하고자 하는 방 찾기
         const roomIdx = rooms.findIndex(room => room.id === roomId)
 
@@ -198,17 +178,7 @@ io.on('connection', (socket) => {
 
     // 정답 확인 시
     socket.on('guess-answer', data => {
-        console.log('[guess-answer] data: ', data)
         const { roomId, answer } = data
-        /**
-         * todo
-         * 채팅 이벤트 emit(전체 유저 채팅 목록에 정답 내역 보이게 함)
-         * 정답 확인
-         * 정답 시 -> 유저정보(스코어) 업데이트, 방 라운드 정보 업데이트 후 다음 라운드 유저 진행
-         */
-
-
-
         // 방 찾기
         const roomIdx = rooms.findIndex(room => room.id === roomId)
         const room = rooms[roomIdx]
@@ -311,7 +281,7 @@ const gameSessionFinishHandler = (roomId) => {
     room.drawPlayer = nextDrawer
 
     // 게임 세션 종료 알림
-    io.to(roomId).emit('game-session-end', nextDrawer)
+    io.to(roomId).emit('game-session-end', { nextDrawer, currentRound: room.currentRound })
 
     // 단어 선택 이벤트
     io.to(nextDrawer.socketId).emit('select-word', {
@@ -348,6 +318,7 @@ const createNewRoomHandler = (data, socket) => {
         id: uuid(),
         socketId: socket.id,
         roomId,
+        isHost: true
     }
 
     // 연결 유저 목록에 추가
@@ -404,6 +375,7 @@ const joinRoomHandler = (data, socket) => {
         id: uuid(),
         socketId: socket.id,
         roomId,
+        isHost: false
     }
 
     // 참여하고자 하는 방 찾기
@@ -483,6 +455,16 @@ const disconnectHandler = (socket) => {
                 players: room.players
             })
             messageHandler(room.id, `${user.username}님이 방을 나갔습니다.`)
+
+            // 방장 이탈 시 넘겨주기
+            if (user.isHost) {
+                /** @type {Player} nextHost */
+                const nextHost = room.players.filter(p => !p.isHost)[0]
+                io.to(nextHost.socketId).emit('set-room-host')
+            }
+
+            // 연결 유저목록에서 제거
+            connectedUsers = connectedUsers.filter(connectedUser => connectedUser.id === user.id)
         } else {
             // 유저 없을 시 방 제거
             rooms = rooms.filter(r => r.id !== room.id)

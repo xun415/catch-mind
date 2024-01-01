@@ -2,6 +2,7 @@ import {useSocketContext} from "@contexts/socket";
 import { useEffect, useState} from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
 import {useLocation} from "react-router-dom";
+// @ts-ignore
 import * as webRTCHandler from "@utils/webRTCHandler";
 import GameBarContainer from "../../containers/GameBarContainer";
 import PlayerListContainer from "../../containers/PlayerListContainer";
@@ -20,7 +21,6 @@ const GameRoomPage = () => {
     const username = useUserStore(store => store.username)
     const isRoomHost = new URLSearchParams(useLocation().search).get('isHost') === 'true'
     const { streamsRef } = useStreamContext()
-    // const [players, setPlayers] = useState<Player[]>([])
     const {players, setPlayers, setId: setRoomId, id: roomId} = useGameRoomStore()
     const [connectedSocketIds, setConnectedSocketIds] = useState<string[]>([])
 
@@ -53,9 +53,12 @@ const GameRoomPage = () => {
                 const { connUserSocketId } = data;
 
                 // peer connection 준비
-                webRTCHandler.prepareNewPeerConnection(connUserSocketId, false, (data) => {
+                webRTCHandler.prepareNewPeerConnection(connUserSocketId, false, (data: {
+                    signal: SignalData
+                    connUserSocketId: string
+                }) => {
                     socket.emit('conn-signal', data)
-                }, (stream, connUserSocketId) => {
+                }, (stream: MediaStream, connUserSocketId: string) => {
                     if (streamsRef.current) {
                         streamsRef.current[connUserSocketId] = stream
                     }
@@ -67,9 +70,12 @@ const GameRoomPage = () => {
 
             socket.on('conn-init', (data: {connUserSocketId: string}) => {
                 const { connUserSocketId } = data
-                webRTCHandler.prepareNewPeerConnection(connUserSocketId, true, (data) => {
+                webRTCHandler.prepareNewPeerConnection(connUserSocketId, true, (data: {
+                    signal: SignalData
+                    connUserSocketId: string
+                }) => {
                     socket.emit('conn-signal', data)
-                }, (stream, connUserSocketId) => {
+                }, (stream: MediaStream, connUserSocketId: string) => {
                     if (streamsRef.current) {
                         streamsRef.current[connUserSocketId] = stream
                         setConnectedSocketIds(prev => [...prev, connUserSocketId])
@@ -83,22 +89,13 @@ const GameRoomPage = () => {
             })
 
         }
-        // return () => {
-        //     if (socket) {
-        //         socket.emit('disconnect')
-        //     }
-        // }
+        return () => {
+            if (socket) {
+                socket.emit('disconnect')
+            }
+        }
     },[])
 
-    /**
-     * todo
-     *
-     * 유저 목록
-     * 게임 세팅 & 캔버스 영역
-     * 이벤트 & 채팅 영역
-     *
-     * - webRTC peer stream 위치 고려 (캔버스 영역의 스트림와, 음성)
-     */
     return (
         <Grid
             minW={'320px'}

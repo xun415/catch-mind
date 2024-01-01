@@ -1,4 +1,4 @@
-import {Box, Button, Divider, Flex, HStack, Input, VStack} from "@chakra-ui/react";
+import {Box, Button, Divider, Flex, Input, VStack} from "@chakra-ui/react";
 import {useSocketContext} from "@contexts/socket";
 import {ReactNode, useEffect, useState} from "react";
 import {Message} from "../types/data";

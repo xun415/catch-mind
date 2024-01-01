@@ -4,6 +4,7 @@
  * @property {string} id 서버 부여 랜덤 아이디
  * @property {string} socketId 소켓 아이디
  * @property {string} roomId 룸 아이디
+ * @property {boolean} isHost 호스트여부
  */
 
 /**

@@ -16,11 +16,13 @@ type UseGameRoomStore = Room & {
 
 const initStatus: Room = {
     id: null,
+    roomConfig: {
+        totalRound: 3,
+        maxPlayerNumber: 4,
+        timePerRound: 180,
+    },
     players: [],
     // default
-    totalRound: 3,
-    maxPlayerNumber: 4,
-    timePerRound: 180,
     currentRound: 0,
     drawPlayer: null,
     gameStatus: GAME_STATUS.설정중,
@@ -33,9 +35,12 @@ export const useGameRoomStore = create<UseGameRoomStore>()(
         set => ({
             ...initStatus,
             setRoomConfig: (newConfig: RoomConfig) => {
+                console.log('[store] setRoomConfig: ', newConfig)
                 set(prev => ({
                     ...prev,
-                   ...newConfig
+                    roomConfig: {
+                        ...newConfig
+                    }
                 }))
             },
             setId: (id: string) => {
@@ -51,7 +56,6 @@ export const useGameRoomStore = create<UseGameRoomStore>()(
                 }))
             },
             setDrawPlayer: (drawPlayer) => {
-                console.log('[store] setDrawPlayer')
                 set(prev => ({
                     ...prev,
                     drawPlayer

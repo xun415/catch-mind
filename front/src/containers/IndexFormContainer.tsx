@@ -1,6 +1,5 @@
 import IndexForm from "@components/ui/IndexForm";
 import {useNavigate} from "react-router-dom";
-import {useUserContext} from "@contexts/user/UserContext";
 import {useState} from "react";
 import JoinRoomModal from "@components/ui/JoinRoomModal";
 import {getIsRoomFull} from "@apis/room";
@@ -36,7 +35,7 @@ const IndexFormContainer = () => {
                 setRoomId(roomId)
             }
         } catch (e) {
-            if (e instanceof AxiosError && e.response.status === 404) {
+            if (e instanceof AxiosError && e.response?.status === 404) {
                 setJoinRoomErrorMessage('해당 게임방을 찾을 수 없습니다.')
             }
         }

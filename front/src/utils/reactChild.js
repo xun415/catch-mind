@@ -1,6 +1,4 @@
-import {Children, ReactElement, ComponentType} from "react";
-
-import React, { ReactNode } from 'react';
+import {Children} from "react";
 
 /**
  * 주어진 children 타입이 허용된 ComponentType 인지 확인입니다.
@@ -12,14 +10,14 @@ import React, { ReactNode } from 'react';
  * isAllowedChildComponent(children, ModalHeader, ModalFooter)
  */
 export const isAllowedChildComponent = (
-    children: ReactNode,
-    ...allowedChildren: ComponentType[]
-): boolean => {
+    children,
+    ...allowedChildren
+) => {
     let isAllowed = true;
 
     Children.map(children, (child) => {
         // allowedChildren 배열에 포함되어 있는지 확인
-        if (!allowedChildren.includes(<React.ComponentClass<{}> | React.FunctionComponent<{}>>(child as ReactElement).type)) {
+        if (!allowedChildren.includes(child?.type)) {
             isAllowed = false;
         }
     });
@@ -27,16 +25,13 @@ export const isAllowedChildComponent = (
     return isAllowed;
 };
 
-
-type Constraints = Record<string, number>;
-
-export const validateChildCount = (children: ReactNode, constraints: Constraints): void => {
-    const childTypeCountMap: Record<string, number> = {};
+export const validateChildCount = (children, constraints) => {
+    const childTypeCountMap = {};
 
     Children.forEach(children, (child) => {
         // React.ReactElement 타입인 경우에만 처리
-        if (React.isValidElement(child as ReactElement)) {
-            const childType = child.type.name as string; // 타입 단언을 통해 타입 추론
+        if (React.isValidElement(child)) {
+            const childType = child?.type?.name;
             childTypeCountMap[childType] = (childTypeCountMap[childType] || 0) + 1;
         }
     });

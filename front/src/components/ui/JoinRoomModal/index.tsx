@@ -7,25 +7,25 @@ import {
     ModalHeader,
     ModalOverlay,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import {ChangeEventHandler, useState} from "react";
 
 type Props = {
     isOpen: boolean
     onClose: () => void
     errorMessage?: string
-    onSubmitRoomId: (roomId) => void
+    onSubmitRoomId: (roomId: string) => void
     onChangeInputValue: () => void
 }
 
 const JoinRoomModal = ({ isOpen, onClose, onSubmitRoomId, errorMessage, onChangeInputValue }: Props) => {
     const [roomId, setRoomId] = useState('')
 
-    const handleChange = (event) => {
+    const handleChange: ChangeEventHandler<HTMLInputElement> = (event) => {
         setRoomId(event.target.value)
         onChangeInputValue()
     }
 
-    const isError = errorMessage?.length > 0
+    const isError: boolean = errorMessage?.length ? errorMessage.length > 0 : false
 
     const onClickJoin = () => {
         onSubmitRoomId(roomId)

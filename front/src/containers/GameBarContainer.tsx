@@ -4,7 +4,7 @@ import useUserStore from "../stores/useUserStore";
 
 const GameBarContainer = () => {
     const { username } = useUserStore()
-    const { drawPlayer, currentRound, timePerRound, totalRound, gameStatus, currentAnswer, currentAnswerLength } = useGameRoomStore()
+    const { drawPlayer, currentRound, roomConfig: {totalRound, timePerRound}, gameStatus, currentAnswer, currentAnswerLength } = useGameRoomStore()
     // 현재 플레이 여부
     const isMyTurn = drawPlayer?.username === username
 
