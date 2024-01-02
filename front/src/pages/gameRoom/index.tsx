@@ -99,7 +99,7 @@ const GameRoomPage = () => {
     return (
         <Grid
             minW={'320px'}
-            minH={{base: '', md: ''}}
+            minH={{base: '700px', md: '620px' }}
             gap={2}
             h={'100%'}
             gridTemplateAreas={{
