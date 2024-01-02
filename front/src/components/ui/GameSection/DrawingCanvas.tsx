@@ -81,21 +81,24 @@ const DrawingCanvas = () => {
 
     useEffect(() => {
         const canvas = canvasRef.current
+        const wrap = wrapRef.current
 
-        if (!canvas) return;
+        if (!canvas || !wrap) return;
         resetCanvas()
-        setWidth(canvas.offsetWidth)
-        setHeight(canvas.offsetHeight)
+        const width = wrap.offsetWidth
+        const height = wrap.offsetHeight - 60
+        setWidth(width)
+        setHeight(height)
 
-        canvas.width = canvas.offsetWidth
-        canvas.height = canvas.offsetHeight
+        canvas.width = width
+        canvas.height = height
 
         const ctx = canvas.getContext('2d')
         if (!ctx) return;
         ctx.lineWidth = 5
         ctx.strokeStyle = '#000000'
         ctx.fillStyle = COLOR.drawColor.white
-        ctx.fillRect(0,0, canvas.offsetWidth, canvas.offsetHeight)
+        ctx.fillRect(0,0, width, height)
         setCtx(ctx)
         addCanvasStream(canvas.captureStream(25))
 
