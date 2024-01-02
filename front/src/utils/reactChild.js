@@ -1,4 +1,4 @@
-import {Children} from "react";
+import {Children, isValidElement} from "react";
 
 /**
  * 주어진 children 타입이 허용된 ComponentType 인지 확인입니다.
@@ -30,7 +30,7 @@ export const validateChildCount = (children, constraints) => {
 
     Children.forEach(children, (child) => {
         // React.ReactElement 타입인 경우에만 처리
-        if (React.isValidElement(child)) {
+        if (isValidElement(child)) {
             const childType = child?.type?.name;
             childTypeCountMap[childType] = (childTypeCountMap[childType] || 0) + 1;
         }
