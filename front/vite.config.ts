@@ -1,4 +1,5 @@
-import { defineConfig } from 'vite'
+/// <reference types="vitest" />
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import { nodePolyfills } from 'vite-plugin-node-polyfills'
@@ -33,4 +34,9 @@ export default defineConfig({
       '@contexts': path.resolve(__dirname, './src/contexts')
     }
   },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: './setupTest.ts'
+  }
 })
