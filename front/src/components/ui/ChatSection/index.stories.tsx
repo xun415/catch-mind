@@ -13,7 +13,7 @@ export default meta
 type Story = StoryObj<typeof ChatSection>
 
 export const withWrapper: Story = {
-    render: args => {
+    render: () => {
         const [messages, setMessages] = useState<Message[]>([])
         const onSendMessage = (message: string) => {
             const newMessage: Message = {
