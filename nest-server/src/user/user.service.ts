@@ -32,7 +32,7 @@ export class UserService {
         }
     }
 
-    delete(id: string) {
+    remove(id: string) {
         this.users = this.users.filter(user => user.id !== id)
     }
 }
