@@ -9,7 +9,7 @@ const cors = require('cors')
 const dayjs = require('dayjs')
 const {CATCH_MIND_WORD_LIST} = require("./data/word");
 
-const PORT = process.env.PORT || 5002
+const PORT = process.env.PORT || 5004
 
 const app = express();
 
@@ -503,9 +503,14 @@ const initializeConnectionHandler = (data, socket) => {
 const selectRandomWords = (wordList, excludes, selectCnt = 3, randomFunc = Math.random) => {
     const excluded = wordList.filter(word => !excludes.includes(word));
 
-    return Array.from({ length: selectCnt }, () =>
-        excluded[Math.floor(randomFunc() * excluded.length)]
-    );
+    const selectedWords = new Set();
+
+    while (selectedWords.size < selectCnt) {
+        const randomIndex = Math.floor(randomFunc() * excluded.length);
+        selectedWords.add(excluded[randomIndex]);
+    }
+
+    return Array.from(selectedWords);
 };
 
 const findRoomById = (rooms, roomId) => {

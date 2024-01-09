@@ -49,8 +49,6 @@ export class GameRoomService {
             this.rooms = this.rooms.filter(r => r.id !== room.id)
         }
 
-
-
         return room.players.length
     }
 

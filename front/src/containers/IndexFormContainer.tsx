@@ -8,7 +8,7 @@ import useUserStore from "../stores/useUserStore";
 import {useGameRoomStore} from "../stores/useGameRoomStore";
 
 const IndexFormContainer = () => {
-    let navigate = useNavigate()
+    const navigate = useNavigate()
     const {setUsername} = useUserStore()
     const { setId: setRoomId } = useGameRoomStore()
     const [isJoinRoomModalOpen, setIsJoinRoomModalOpen] = useState(false)

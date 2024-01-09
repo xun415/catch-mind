@@ -22,11 +22,11 @@ export interface GameSession {
 
 export interface RoomConfig {
     // 총 라운드
-    totalRound
+    totalRound: number
     // 참여가능한 최대 플레이어 수
-    maxPlayerNumber
+    maxPlayerNumber: number
     // 라운드 당 시간
-    timePerRound
+    timePerRound: number
 }
 
 export interface GameRoom extends RoomConfig{
@@ -35,7 +35,7 @@ export interface GameRoom extends RoomConfig{
     // 소속 유저 리스트
     players: Player[]
     // 현재 라운드
-    currentRound
+    currentRound: number
     // 현재 라운드 진행중인 플레이어
     drawPlayer: Player
     // 게임 세션 목록
