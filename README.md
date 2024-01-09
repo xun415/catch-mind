@@ -48,7 +48,7 @@ webRTC, socket.io를 사용하여 실시간 채팅, 음성, canvas 통신 기능
 
 ## 프로젝트 환경 구성
 ### 프론트
-react, typescript, vite, chakra-ui
+react, typescript, vite, chakra-ui, storybook, vitest
 
 ### 백엔드
 node, express, socket.io
