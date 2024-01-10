@@ -7,8 +7,7 @@ import {GAME_STATUS} from "../constant/game";
 import {useGameRoomStore} from "../stores/useGameRoomStore";
 import {room} from "@apis/room";
 import GameSection from "@components/ui/GameSection";
-import {useSearchParams} from "react-router-dom";
-import {useNavigate} from "react-router";
+import {useSearchParams, useNavigate} from "react-router-dom";
 
 type Props = {
     roomId: string | null
