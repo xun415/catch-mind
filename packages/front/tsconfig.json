@@ -34,7 +34,7 @@
       "@routes/*": ["./routes/*"],
       "@contexts/*": ["./contexts/*"]
     },
-    "allowSyntheticDefaultImports": true,
+    "allowSyntheticDefaultImports": true
       // emotion 사용을 위해 설정했으나, ts 이슈로 제거
 //    "jsxImportSource": "@emotion/react"
   },
@@ -43,5 +43,5 @@
     "**/*.css.ts",
     "**/*.tsx"
   ],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "references": [{ "path": "./tsconfig.node.json"}]
 }

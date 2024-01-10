@@ -1,0 +1,15 @@
+{
+  "name": "catch-mind",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "front:dev": "pnpm -F @catch-mind/front dev",
+    "server": "pnpm -F @catch-mind/server start",
+    "nest-server": "pnpm -F @catch-mind/nest-server dev",
+    "front:test": "pnpm -F @catch-mind/front test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
