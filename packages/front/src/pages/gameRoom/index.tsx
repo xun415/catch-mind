@@ -14,6 +14,8 @@ import useUserStore from "../../stores/useUserStore";
 import {useNavigate} from "react-router-dom";
 import {useGameRoomStore} from "../../stores/useGameRoomStore";
 import {SignalData} from "simple-peer";
+import {GAME_EVENT} from "@catch-mind/common/constants/socketEvent";
+
 
 const GameRoomPage = () => {
     const { socket } = useSocketContext()
@@ -29,9 +31,9 @@ const GameRoomPage = () => {
             // 오디오 접근 및 방 생성 요청
             webRTCHandler.setLocalAudioStream(() => {
                 isRoomHost?
-                    socket.emit('create-new-room', { username })
+                    socket.emit(GAME_EVENT.방_만들기, { username })
                     :
-                    socket.emit('join-room', { username, roomId })
+                    socket.emit(GAME_EVENT.방_참여, { username, roomId })
             }, () => {
                 alert('오디오 접근에 실패했습니다.')
                 navigate('/')
@@ -60,7 +62,7 @@ const GameRoomPage = () => {
                     socket.emit('conn-signal', data)
                 }, (stream: MediaStream, connUserSocketId: string) => {
                     if (streamsRef.current) {
-                        streamsRef.current[connUserSocketId] = stream
+                        streamsRef.current![connUserSocketId] = stream
                     }
                 })
 
@@ -77,7 +79,7 @@ const GameRoomPage = () => {
                     socket.emit('conn-signal', data)
                 }, (stream: MediaStream, connUserSocketId: string) => {
                     if (streamsRef.current) {
-                        streamsRef.current[connUserSocketId] = stream
+                        streamsRef.current![connUserSocketId] = stream
                         setConnectedSocketIds(prev => [...prev, connUserSocketId])
                     }
                 })

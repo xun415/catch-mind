@@ -8,8 +8,13 @@ importers:
 
   .: {}
 
+  packages/common: {}
+
   packages/front:
     dependencies:
+      '@catch-mind/common':
+        specifier: workspace:*
+        version: link:../common
       '@chakra-ui/react':
         specifier: ^2.8.2
         version: 2.8.2(@emotion/react@11.11.3)(@emotion/styled@11.11.0)(@types/react@18.2.47)(framer-motion@6.5.1)(react-dom@18.2.0)(react@18.2.0)
@@ -31,9 +36,6 @@ importers:
       '@react-buddy/palette-chakra-ui':
         specifier: ^2.3.2
         version: 2.3.2(@chakra-ui/icons@1.1.7)(@chakra-ui/react@2.8.2)(react@18.2.0)
-      '@types/simple-peer':
-        specifier: ^9.11.8
-        version: 9.11.8
       axios:
         specifier: ^1.6.2
         version: 1.6.5
@@ -125,6 +127,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.15
         version: 18.2.18
+      '@types/simple-peer':
+        specifier: ^9.11.8
+        version: 9.11.8
       '@types/uuid':
         specifier: ^9.0.7
         version: 9.0.7
@@ -5933,7 +5938,7 @@ packages:
     resolution: {integrity: sha512-rvqefdp2rvIA6wiomMgKWd2UZNPe6LM2EV5AuY3CPQJF+8TbdrL5TjYdMf0VAjGczzlkH4l1NjDkihwbj3Xodw==}
     dependencies:
       '@types/node': 20.10.8
-    dev: false
+    dev: true
 
   /@types/socket.io@3.0.2:
     resolution: {integrity: sha512-pu0sN9m5VjCxBZVK8hW37ZcMe8rjn4HHggBN5CbaRTvFwv5jOmuIRZEuddsBPa9Th0ts0SIo3Niukq+95cMBbQ==}

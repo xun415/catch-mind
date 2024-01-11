@@ -1,0 +1,7 @@
+{
+  "name": "@catch-mind/common",
+  "private": true,
+  "sideEffects": false,
+  "version": "0.0.0",
+  "type": "module"
+}

@@ -1,6 +1,5 @@
 import {Meta, StoryObj} from "@storybook/react";
 import JoinRoomModal from "./index";
-import { action } from '@storybook/addon-actions';
 
 const meta: Meta<typeof JoinRoomModal> = {
     component: JoinRoomModal,
@@ -24,10 +23,7 @@ type Story = StoryObj<typeof JoinRoomModal>
 
 export const Default: Story = {
     args: {
-        isOpen: true,
-        onClose: action('onClose'),
-        onSubmitRoomId: action('onSubmitRoomId'),
-        onChangeInputValue: action('onChangeInputValue'),
+        isOpen: true
     }
 }
 

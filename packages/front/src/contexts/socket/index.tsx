@@ -27,9 +27,8 @@ export const SocketContextProvider = ({ children }: SocketContextProviderProps) 
 
     useEffect(() =>{
         const socket = io(SERVER_URL)
-        setSocketId(socket.id)
+        setSocketId(socket.id!)
         socketRef.current = socket
-        console.log('socket connected: ', socket)
 
         return () => {
             console.log('disconnect')
