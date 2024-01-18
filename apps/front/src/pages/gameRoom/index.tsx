@@ -2,7 +2,8 @@ import {useSocketContext} from "@contexts/socket";
 import { useEffect, useState} from "react";
 import { Grid, GridItem } from "@chakra-ui/react";
 import {useLocation} from "react-router-dom";
-// @ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-expect-error
 import * as webRTCHandler from "@utils/webRTCHandler";
 import GameBarContainer from "../../containers/GameBarContainer";
 import PlayerListContainer from "../../containers/PlayerListContainer";
@@ -14,7 +15,7 @@ import useUserStore from "../../stores/useUserStore";
 import {useNavigate} from "react-router-dom";
 import {useGameRoomStore} from "../../stores/useGameRoomStore";
 import {SignalData} from "simple-peer";
-import {GAME_EVENT} from "@catch-mind/common/constants/socketEvent";
+import {GAME_EVENT, WEBRTC_EVENT} from "@catch-mind/common/constants/socketEvent";
 
 
 const GameRoomPage = () => {
@@ -25,7 +26,6 @@ const GameRoomPage = () => {
     const { streamsRef } = useStreamContext()
     const {players, setPlayers, setId: setRoomId, id: roomId} = useGameRoomStore()
     const [connectedSocketIds, setConnectedSocketIds] = useState<string[]>([])
-
     useEffect(() => {
         if (socket) {
             // 오디오 접근 및 방 생성 요청
@@ -40,18 +40,18 @@ const GameRoomPage = () => {
             })
 
             // 방 생성 성공 시
-            socket.on('room-created', (data: {roomId: string}) => {
+            socket.on(GAME_EVENT.방_생성, (data: {roomId: string}) => {
                 const { roomId } = data
                 setRoomId(roomId)
             })
 
-            socket.on('conn-signal', (data: {signal: SignalData, connUserSocketId: string}) => {
+            socket.on(WEBRTC_EVENT.연결_데이터교환, (data: {signal: SignalData, connUserSocketId: string}) => {
                 webRTCHandler.handleSignalingData(data)
                 setConnectedSocketIds(prev => [...prev, data.connUserSocketId])
             })
 
             // peer 연결 준비 요청 받을 시 (방 입장시 server 에서 이벤트 발생)
-            socket.on('conn-prepare', (data: {connUserSocketId: string}) => {
+            socket.on(WEBRTC_EVENT.연결_준비, (data: {connUserSocketId: string}) => {
                 const { connUserSocketId } = data;
 
                 // peer connection 준비
@@ -59,7 +59,7 @@ const GameRoomPage = () => {
                     signal: SignalData
                     connUserSocketId: string
                 }) => {
-                    socket.emit('conn-signal', data)
+                    socket.emit(WEBRTC_EVENT.연결_데이터교환, data)
                 }, (stream: MediaStream, connUserSocketId: string) => {
                     if (streamsRef.current) {
                         streamsRef.current![connUserSocketId] = stream
@@ -67,16 +67,16 @@ const GameRoomPage = () => {
                 })
 
                 // 준비 완료 이벤트 전달
-                socket.emit('conn-init', { connUserSocketId })
+                socket.emit(WEBRTC_EVENT.연결_완료, { connUserSocketId })
             })
 
-            socket.on('conn-init', (data: {connUserSocketId: string}) => {
+            socket.on(WEBRTC_EVENT.연결_완료, (data: {connUserSocketId: string}) => {
                 const { connUserSocketId } = data
                 webRTCHandler.prepareNewPeerConnection(connUserSocketId, true, (data: {
                     signal: SignalData
                     connUserSocketId: string
                 }) => {
-                    socket.emit('conn-signal', data)
+                    socket.emit(WEBRTC_EVENT.연결_데이터교환, data)
                 }, (stream: MediaStream, connUserSocketId: string) => {
                     if (streamsRef.current) {
                         streamsRef.current![connUserSocketId] = stream
@@ -85,7 +85,7 @@ const GameRoomPage = () => {
                 })
             })
 
-            socket.on('player-update', (data: { players: Player[] }) => {
+            socket.on(GAME_EVENT.유저_업데이트, (data: { players: Player[] }) => {
                 // 순위에 맞게 정렬
                 setPlayers(data.players.sort((a, b) => b.score - a.score))
             })

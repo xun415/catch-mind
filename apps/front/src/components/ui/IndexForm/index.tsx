@@ -1,4 +1,5 @@
-import { Button, Flex, FormControl, FormErrorMessage, FormLabel, Input } from "@chakra-ui/react";
+import { Flex, FormControl, FormErrorMessage, FormLabel, Input } from "@chakra-ui/react";
+import { Button } from '@catch-mind/ui'
 import {SubmitHandler, useForm} from "react-hook-form";
 import { ErrorMessage } from "@hookform/error-message"
 import {BaseSyntheticEvent} from "react";
@@ -38,7 +39,6 @@ const IndexForm = ({ onSubmitJoinRoom, onSubmitCreateRoom }: Props) => {
         >
             <FormControl isInvalid={errors.nickname !== undefined}>
                 <FormLabel>닉네임</FormLabel>
-                       {/* @ts-ignore */}
                 <Input type={'text'}
                        placeholder={'닉네임을 입력해주세요(2~15)'}
                        {...register('nickname', {
@@ -57,8 +57,8 @@ const IndexForm = ({ onSubmitJoinRoom, onSubmitCreateRoom }: Props) => {
                     render={({ message }) => <FormErrorMessage>{message}</FormErrorMessage>}
                 />
             </FormControl>
-            <Button colorScheme={'green'} type={'submit'} data-type={'join'}>참여하기</Button>
-            <Button colorScheme={'telegram'} type={'submit'} data-type={'create'}>방만들기</Button>
+            <Button variant={'secondary'} size={'medium'}  type={'submit'} data-type={'join'}>참여하기</Button>
+            <Button  type={'submit'} data-type={'create'}>방만들기</Button>
         </Flex>
     )
 }
